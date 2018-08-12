@@ -14,5 +14,6 @@ public @interface Column {
     String value();
     boolean updateAble() default true;
     boolean insertAlle() default true;
+    int sort();
 
 }

@@ -1,11 +1,14 @@
 package top.duanyd.lottery.entity;
 
+import top.duanyd.lottery.annotation.Table;
+
 import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
  * Created by Administrator on 2018/8/8.
  */
+@Table("lottery_data_url")
 public class DataURLEntity {
 
     Long id;

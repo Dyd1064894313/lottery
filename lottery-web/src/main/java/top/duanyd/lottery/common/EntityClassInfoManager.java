@@ -30,24 +30,30 @@ public class EntityClassInfoManager {
             entityClassInfo.setTableName(getTableName(cls));
             entityClassInfo.setIdFieldMap(getIdFieldMap(cls));
             entityClassInfo.setAutoIncrementField(getAutoIncrementField(cls));
-            entityClassInfo.setInsertAbleFieldMap(getInsertAbleFieldMap(cls));
-            entityClassInfo.setUpdateAbleFieldMap(getUpdateAbleFieldMap(cls));
+            entityClassInfo.setInsertableFieldMap(getInsertableFieldMap(cls));
+            entityClassInfo.setUpdateableFieldMap(getUpdateableFieldMap(cls));
             entityClassInfo.setSetMethodMap(getSetMethodMap(cls));
             entityClassInfo.setGetMethodMap(getGetMethodMap(cls));
+            entityClassInfo.setInsertableFieldList(getIndertableFieldList(cls));
+            entityClassInfo.setUpdateableFieldList(getUpdateableFieldList(cls));
             classInfoMap.put(cls, entityClassInfo);
             return entityClassInfo;
         }
         return classInfoMap.get(cls);
     }
 
-    public static String getTableName(Class<?> cls){
-        Assert.notNull(cls, "class not be null!");
+    public static String getTableName(Class<?> cls) throws Exception {
+        Assert.notNull(cls, "Class not be null!");
         boolean hasAnnotation = cls.isAnnotationPresent(Table.class);
         if(!hasAnnotation){
-            return null;
+            throw new Exception("Entity class " + cls.getName() + " must have Table annotation!");
         }
         Table table = cls.getAnnotation(Table.class);
-        return table.value();
+        String tableName = table.value();
+        if(StringUtils.isBlank(tableName)){
+            throw new Exception("Entity class " + cls.getName() + " Table annotation value can not be blank!");
+        }
+        return tableName;
     }
 
     public static Map<String, Field> getIdFieldMap(Class<?> cls){
@@ -108,9 +114,9 @@ public class EntityClassInfoManager {
         return autoIncrementField;
     }
 
-    public static Map<String, Field> getInsertAbleFieldMap(Class<?> cls){
+    public static Map<String, Field> getInsertableFieldMap(Class<?> cls){
         Assert.notNull(cls, "class not be null!");
-        Map<String, Field> insertAbleFieldMap = new HashMap<>();
+        Map<String, Field> insertableFieldMap = new HashMap<>();
         List<Field> fieldList = new ArrayList<>();
         Field[] fields = cls.getDeclaredFields();
         if(fields != null){
@@ -125,19 +131,19 @@ public class EntityClassInfoManager {
             parent = parent.getSuperclass();
         }
         if(fieldList.isEmpty()){
-            return insertAbleFieldMap;
+            return insertableFieldMap;
         }
         for(Field field : fieldList){
             if(field.isAnnotationPresent(Column.class) && field.getAnnotation(Column.class).insertAlle()){
-                insertAbleFieldMap.put(field.getName(), field);
+                insertableFieldMap.put(field.getName(), field);
             }
         }
-        return insertAbleFieldMap;
+        return insertableFieldMap;
     }
 
-    public static Map<String, Field> getUpdateAbleFieldMap(Class<?> cls){
+    public static Map<String, Field> getUpdateableFieldMap(Class<?> cls){
         Assert.notNull(cls, "class not be null!");
-        Map<String, Field> updateAbleFieldMap = new HashMap<>();
+        Map<String, Field> updateableFieldMap = new HashMap<>();
         List<Field> fieldList = new ArrayList<>();
         Field[] fields = cls.getDeclaredFields();
         if(fields != null){
@@ -152,14 +158,14 @@ public class EntityClassInfoManager {
             parent = parent.getSuperclass();
         }
         if(fieldList.isEmpty()){
-            return updateAbleFieldMap;
+            return updateableFieldMap;
         }
         for(Field field : fieldList){
             if(field.isAnnotationPresent(Column.class) && field.getAnnotation(Column.class).updateAble()){
-                updateAbleFieldMap.put(field.getName(), field);
+                updateableFieldMap.put(field.getName(), field);
             }
         }
-        return updateAbleFieldMap;
+        return updateableFieldMap;
     }
 
     public static Map<String, Method> getSetMethodMap(Class<?> cls) throws Exception {
@@ -308,6 +314,80 @@ public class EntityClassInfoManager {
         }
 
         return retValue;
+    }
+
+    /**
+     * 获取可插入的字段列表
+     * @param cls
+     * @return
+     * @throws Exception
+     */
+    public static List<Field> getIndertableFieldList(Class<?> cls) throws Exception {
+        EntityClassInfo classInfo = getEntityClassInfo(cls);
+        Collection<Field> values = classInfo.getInsertableFieldMap().values();
+        Set<Integer> sort = new HashSet<Integer>();
+        if(values == null || values.size() == 0){
+            return null;
+        }
+        //判断是否有重复的sort值
+        for(Field field : values){
+            if(!sort.add(field.getAnnotation(Column.class).sort())){
+                throw new Exception("One entity can not have more than one same sort value!");
+            }
+        }
+        //根据sort值正排序字段
+        List<Field> insertableFieldList = new ArrayList<Field>(values);
+        Collections.sort(insertableFieldList, new Comparator<Field>() {
+            @Override
+            public int compare(Field o1, Field o2) {
+                int sort1 = o1.getAnnotation(Column.class).sort();
+                int sort2 = o2.getAnnotation(Column.class).sort();
+                if(sort1 > sort2){
+                    return 1;
+                }else if(sort1 < sort2) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        return insertableFieldList;
+    }
+
+    /**
+     * 获取可插入的字段列表
+     * @param cls
+     * @return
+     * @throws Exception
+     */
+    public static List<Field> getUpdateableFieldList(Class<?> cls) throws Exception {
+        EntityClassInfo classInfo = getEntityClassInfo(cls);
+        Collection<Field> values = classInfo.getUpdateableFieldMap().values();
+        Set<Integer> sort = new HashSet<Integer>();
+        if(values == null || values.size() == 0){
+            return null;
+        }
+        //判断是否有重复的sort值
+        for(Field field : values){
+            if(!sort.add(field.getAnnotation(Column.class).sort())){
+                throw new Exception("One entity can not have more than one same sort value!");
+            }
+        }
+        //根据sort值正排序字段
+        List<Field> updateableFieldList = new ArrayList<Field>(values);
+        Collections.sort(updateableFieldList, new Comparator<Field>() {
+            @Override
+            public int compare(Field o1, Field o2) {
+                int sort1 = o1.getAnnotation(Column.class).sort();
+                int sort2 = o2.getAnnotation(Column.class).sort();
+                if(sort1 > sort2){
+                    return 1;
+                }else if(sort1 < sort2) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        return updateableFieldList;
     }
 
 }

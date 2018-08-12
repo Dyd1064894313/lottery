@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -85,31 +86,63 @@ public class MyJdbcTemplet extends JdbcTemplate {
     }
     public void insert(Object entity)throws Exception{
         Assert.notNull(entity, "entity must not be null!");
-        Class<?> c = entity.getClass();
+        final Class<?> c = entity.getClass();
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(c);
         String tableName = entityClassInfo.getTableName();
         Map<String, Field> idFieldMap = entityClassInfo.getIdFieldMap();
         Field autoIncrementField = entityClassInfo.getAutoIncrementField();
         Map<String, Method> setMethodMap = entityClassInfo.getSetMethodMap();
-        if(autoIncrementField != null){
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            this.update(new PreparedStatementCreator() {
-                @Override
-                public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                    StringBuffer sql = new StringBuffer();
-                    PreparedStatement preparedStatement = connection.prepareStatement(sql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
-                    return null;
+        Map<String, Method> getMethodMap = entityClassInfo.getGetMethodMap();
+        List<Field> insertableFieldList = entityClassInfo.getInsertableFieldList();
+        String sql = getInsertSql(tableName, insertableFieldList);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        this.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+                for(int i = 0; i < insertableFieldList.size(); i++){
+                    Field field = insertableFieldList.get(i);
+                    Method getMethod = getMethodMap.get(field.getName());
+                    if(getMethod == null){
+                        throw new SQLException("Entity " + c.getName() + " field " + field.getName() + " have no get method!");
+                    }
+                    try {
+                        Object value = getMethod.invoke(entity);
+                        EntityClassInfoManager.setPara(preparedStatement, value, i + 1);
+                        logger.info("--\t\t" + field.getName() + ":\t\t" + value);
+                    }catch (IllegalAccessException e) {
+                        logger.error(e);
+                    } catch (InvocationTargetException e) {
+                        logger.error(e);
+                    }finally {
+                        throw new SQLException("Entity " + c.getName() + " set value to PrepareStatement for insert have an error!");
+                    }
                 }
-            }, keyHolder);
+                return preparedStatement;
+            }
+        }, keyHolder);
+        if(autoIncrementField != null){
             //获取自增主键的值并赋给传入的entity
             Number key = keyHolder.getKey();
             EntityClassInfoManager.setNumberValue(entity, autoIncrementField, setMethodMap.get(autoIncrementField.getName()), key);
         }
     }
 
-    private void setValue(Object obj, Field field, Method setMethod, Number number){
+    private String getInsertSql(String tableName, List<Field> fieldList){
 
-
+        StringBuffer head = new StringBuffer("INSERT INTO `").append(tableName).append("` (");
+        StringBuffer tail = new StringBuffer(" VALUES (");
+        Field field = fieldList.get(0);
+        head.append(field.getAnnotation(Column.class).value());
+        tail.append("?");
+        for(int i = 1; i < fieldList.size(); i++){
+            field = fieldList.get(i);
+            head.append(", ").append(field.getAnnotation(Column.class).value());
+            tail.append(", ?");
+        }
+        head.append(")");
+        tail.append(")");
+        return head.append(tail).toString();
     }
 
 }

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:p="http://www.springframework.org/schema/p"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <mvc:annotation-driven/>
+    <!-- 自动扫描包，使SpringMVC @controller注解 -->
+    <context:component-scan base-package="top.duanyd.lottery.controller" />
+    <mvc:default-servlet-handler/>
+
+    <!-- 启动SpringMVC的注解功能，完成请求和注解PO的映射 -->
+    <bean
+            class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <!-- 结果数据支持String，但是这个解析器一定要放在JSON解析器前 -->
+                <ref bean="stringHttpMessageConverter"/>
+                <!-- JSON解析：结果数据支持(fastjson) -->
+                <ref bean="fastJsonHttpMessageConverter"/>
+                <!-- JSON解析：结果数据支持(jackson) -->
+                <!--  <ref bean="mappingJacksonHttpMessageConverter" /> -->
+            </list>
+        </property>
+    </bean>
+    <!-- String转化器 -->
+    <bean id="stringHttpMessageConverter"
+          class="org.springframework.http.converter.StringHttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <!-- 这里顺序一定不能反，一定先写text/html,否则IE下出现下载提示 -->
+                <value>text/html;charset=UTF-8</value>
+                <value>application/json;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- JSON转化器(jackson版本) -->
+    <!--<bean id="mappingJacksonHttpMessageConverter"
+          class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="objectMapper">
+            &lt;!&ndash; <bean class="com.threeStepTech.ObjectMapper.CustomObjectMapper"/> &ndash;&gt;
+            <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                <property name="dateFormat">
+                    <bean class="java.text.SimpleDateFormat">
+                        <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>
+                    </bean>
+                </property>
+                <property name="serializationInclusion">
+                    &lt;!&ndash; 注入枚举类型,过滤对象，这样JSON中不会输出NULL &ndash;&gt;
+                    <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+                </property>
+            </bean>
+        </property>
+        <property name="supportedMediaTypes">
+            <list>
+                &lt;!&ndash; 这里顺序一定不能反，一定先写text/html,否则IE下出现下载提示 &ndash;&gt;
+                <value>text/html;charset=UTF-8</value>
+                <value>application/json;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>-->
+    <!-- JSON转化器(fastjson版本) -->
+    <bean id="fastJsonHttpMessageConverter"
+          class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4">
+        <property name="fastJsonConfig">
+            <bean class="com.alibaba.fastjson.support.config.FastJsonConfig">
+                <property name="dateFormat" value="yyyy-MM-dd HH:mm:ss"/>
+                <property name="serializerFeatures">
+                    <array>
+                        <!--此配置用于将Date类型转化为dateFormat对应的格式-->
+                        <value>WriteDateUseDateFormat</value>
+                    </array>
+                </property>
+            </bean>
+        </property>
+        <property name="supportedMediaTypes">
+            <list>
+                <!-- 这里顺序一定不能反，一定先写text/html,否则IE下出现下载提示 -->
+                <value>text/html;charset=UTF-8</value>
+                <value>application/json;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 定义跳转的文件的前后缀 ，视图模式配置-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 请求跳转url地址，路径自定义，也可以直接访问前端html -->
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".html" />  <!-- 可配置 html,主要用于H5页面请求 -->
+    </bean>
+
+    <!-- 配置文件上传,如果不使用可不配置，而且POM可以不加入文件上传包 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 默认编码 -->
+        <property name="defaultEncoding" value="utf-8" />
+        <!-- 文件大小最大值 -->
+        <property name="maxUploadSize" value="10485760000" />
+        <!-- 内存中的最大值 -->
+        <property name="maxInMemorySize" value="40960" />
+    </bean>
+
+</beans>

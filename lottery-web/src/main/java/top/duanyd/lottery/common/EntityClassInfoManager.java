@@ -5,13 +5,16 @@ import org.springframework.util.Assert;
 import top.duanyd.lottery.annotation.Column;
 import top.duanyd.lottery.annotation.Id;
 import top.duanyd.lottery.annotation.Table;
+import top.duanyd.lottery.exception.MyJdbcTempletAnnotationException;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,41 +27,47 @@ public class EntityClassInfoManager {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static Map<Class<?>, EntityClassInfo> classInfoMap = new HashMap();
 
-    public static EntityClassInfo getEntityClassInfo(Class<?> cls) throws Exception {
+    public static EntityClassInfo getEntityClassInfo(Class<?> cls){
         if(classInfoMap.get(cls) == null){
             EntityClassInfo entityClassInfo = new EntityClassInfo();
-            entityClassInfo.setTableName(getTableName(cls));
-            entityClassInfo.setIdFieldMap(getIdFieldMap(cls));
-            entityClassInfo.setAutoIncrementField(getAutoIncrementField(cls));
-            entityClassInfo.setInsertableFieldMap(getInsertableFieldMap(cls));
-            entityClassInfo.setUpdateableFieldMap(getUpdateableFieldMap(cls));
-            entityClassInfo.setSetMethodMap(getSetMethodMap(cls));
-            entityClassInfo.setGetMethodMap(getGetMethodMap(cls));
-            entityClassInfo.setInsertableFieldList(getIndertableFieldList(cls));
-            entityClassInfo.setUpdateableFieldList(getUpdateableFieldList(cls));
-            classInfoMap.put(cls, entityClassInfo);
+            try {
+                entityClassInfo.setTableName(getTableName(cls));
+                entityClassInfo.setAllDBFieldMap(getAllDBFieldMap(cls));
+                entityClassInfo.setIdFieldMap(getIdFieldMap(entityClassInfo.getAllDBFieldMap()));
+                entityClassInfo.setAutoIncrementField(getAutoIncrementField(entityClassInfo.getAllDBFieldMap()));
+                entityClassInfo.setInsertableFieldMap(getInsertableFieldMap(entityClassInfo.getAllDBFieldMap()));
+                entityClassInfo.setUpdateableFieldMap(getUpdateableFieldMap(entityClassInfo.getAllDBFieldMap()));
+                entityClassInfo.setSetMethodMap(getSetMethodMap(entityClassInfo.getAllDBFieldMap()));
+                entityClassInfo.setGetMethodMap(getGetMethodMap(entityClassInfo.getAllDBFieldMap()));
+                entityClassInfo.setIdFieldList(getIdFieldList(entityClassInfo.getIdFieldMap()));
+                entityClassInfo.setInsertableFieldList(getIndertableFieldList(entityClassInfo.getInsertableFieldMap()));
+                entityClassInfo.setUpdateableFieldList(getUpdateableFieldList(entityClassInfo.getUpdateableFieldMap()));
+                classInfoMap.put(cls, entityClassInfo);
+            }catch (Exception e) {
+                throw new MyJdbcTempletAnnotationException(e);
+            }
             return entityClassInfo;
         }
         return classInfoMap.get(cls);
     }
 
-    public static String getTableName(Class<?> cls) throws Exception {
+    public static String getTableName(Class<?> cls) {
         Assert.notNull(cls, "Class not be null!");
         boolean hasAnnotation = cls.isAnnotationPresent(Table.class);
         if(!hasAnnotation){
-            throw new Exception("Entity class " + cls.getName() + " must have Table annotation!");
+            throw new MyJdbcTempletAnnotationException("Entity class " + cls.getName() + " must have Table annotation!");
         }
         Table table = cls.getAnnotation(Table.class);
         String tableName = table.value();
         if(StringUtils.isBlank(tableName)){
-            throw new Exception("Entity class " + cls.getName() + " Table annotation value can not be blank!");
+            throw new IllegalArgumentException("Entity class " + cls.getName() + " Table annotation value cannot be blank!");
         }
         return tableName;
     }
 
-    public static Map<String, Field> getIdFieldMap(Class<?> cls){
-        Assert.notNull(cls, "class not be null!");
-        Map<String, Field> idFieldMap = new HashMap<>();
+    public static Map<String, Field> getAllDBFieldMap(Class<?> cls){
+        Assert.notNull(cls, "Class not be null!");
+        Map<String, Field> allDBFieldMap = new HashMap<>();
         List<Field> fieldList = new ArrayList<>();
         Field[] fields = cls.getDeclaredFields();
         if(fields != null){
@@ -73,40 +82,43 @@ public class EntityClassInfoManager {
             parent = parent.getSuperclass();
         }
         if(fieldList.isEmpty()){
+            return allDBFieldMap;
+        }
+        for(Field field : fieldList){
+            if(field.isAnnotationPresent(Column.class)){
+                allDBFieldMap.put(field.getName(), field);
+            }
+        }
+        return allDBFieldMap;
+    }
+
+    public static Map<String, Field> getIdFieldMap(Map<String, Field> allDBFieldMap){
+        Map<String, Field> idFieldMap = new HashMap<>();
+        Collection<Field> fieldList = allDBFieldMap.values();
+        if(fieldList == null || fieldList.isEmpty()){
             return idFieldMap;
         }
         for(Field field : fieldList){
             if(field.isAnnotationPresent(Id.class)){
+                if(!field.isAnnotationPresent(Column.class)){
+                    throw new MyJdbcTempletAnnotationException("Entity class " + field.getDeclaringClass().getName() + " id field " + field.getName() + " miss annotation Column");
+                }
                 idFieldMap.put(field.getName(), field);
             }
         }
         return idFieldMap;
     }
 
-    public static Field getAutoIncrementField(Class<?> cls) throws Exception {
-        Assert.notNull(cls, "class not be null!");
-        Map<String, Field> idFieldMap = new HashMap<>();
-        List<Field> fieldList = new ArrayList<>();
-        Field[] fields = cls.getDeclaredFields();
-        if(fields != null){
-            fieldList.addAll(Arrays.asList(fields));
-        }
-        Class<?> parent = cls.getSuperclass();
-        while(parent != null){
-            fields = parent.getDeclaredFields();
-            if(fields != null){
-                fieldList.addAll(Arrays.asList(fields));
-            }
-            parent = parent.getSuperclass();
-        }
-        if(fieldList.isEmpty()){
-            return null;
-        }
+    public static Field getAutoIncrementField(Map<String, Field> allDBFieldMap) {
         Field autoIncrementField = null;
+        Collection<Field> fieldList = allDBFieldMap.values();
+        if(fieldList == null || fieldList.isEmpty()){
+            return autoIncrementField;
+        }
         for(Field field : fieldList){
             if(field.isAnnotationPresent(Id.class) && field.getAnnotation(Id.class).autoIncrement()){
                 if(autoIncrementField != null){
-                    throw new Exception("There can only be one for the autoIncrement primary key");
+                    throw new MyJdbcTempletAnnotationException("There can only be one for the autoIncrement primary key");
                 }
                 autoIncrementField = field;
             }
@@ -114,23 +126,10 @@ public class EntityClassInfoManager {
         return autoIncrementField;
     }
 
-    public static Map<String, Field> getInsertableFieldMap(Class<?> cls){
-        Assert.notNull(cls, "class not be null!");
+    public static Map<String, Field> getInsertableFieldMap(Map<String, Field> allDBFieldMap){
         Map<String, Field> insertableFieldMap = new HashMap<>();
-        List<Field> fieldList = new ArrayList<>();
-        Field[] fields = cls.getDeclaredFields();
-        if(fields != null){
-            fieldList.addAll(Arrays.asList(fields));
-        }
-        Class<?> parent = cls.getSuperclass();
-        while(parent != null){
-            fields = parent.getDeclaredFields();
-            if(fields != null){
-                fieldList.addAll(Arrays.asList(fields));
-            }
-            parent = parent.getSuperclass();
-        }
-        if(fieldList.isEmpty()){
+        Collection<Field> fieldList = allDBFieldMap.values();
+        if(fieldList == null || fieldList.isEmpty()){
             return insertableFieldMap;
         }
         for(Field field : fieldList){
@@ -141,23 +140,10 @@ public class EntityClassInfoManager {
         return insertableFieldMap;
     }
 
-    public static Map<String, Field> getUpdateableFieldMap(Class<?> cls){
-        Assert.notNull(cls, "class not be null!");
+    public static Map<String, Field> getUpdateableFieldMap(Map<String, Field> allDBFieldMap){
         Map<String, Field> updateableFieldMap = new HashMap<>();
-        List<Field> fieldList = new ArrayList<>();
-        Field[] fields = cls.getDeclaredFields();
-        if(fields != null){
-            fieldList.addAll(Arrays.asList(fields));
-        }
-        Class<?> parent = cls.getSuperclass();
-        while(parent != null){
-            fields = parent.getDeclaredFields();
-            if(fields != null){
-                fieldList.addAll(Arrays.asList(fields));
-            }
-            parent = parent.getSuperclass();
-        }
-        if(fieldList.isEmpty()){
+        Collection<Field> fieldList = allDBFieldMap.values();
+        if(fieldList == null || fieldList.isEmpty()){
             return updateableFieldMap;
         }
         for(Field field : fieldList){
@@ -168,24 +154,14 @@ public class EntityClassInfoManager {
         return updateableFieldMap;
     }
 
-    public static Map<String, Method> getSetMethodMap(Class<?> cls) throws Exception {
-        Assert.notNull(cls, "class not be null!");
+    public static Map<String, Method> getSetMethodMap(Map<String, Field> allDBFieldMap) throws IntrospectionException {
         Map<String, Method> setMethodMap = new HashMap<>();
-        List<Field> fieldList = new ArrayList<>();
-        Field[] fields = cls.getDeclaredFields();
-        if(fields != null){
-            fieldList.addAll(Arrays.asList(fields));
-        }
-        Class<?> parent = cls.getSuperclass();
-        while(parent != null){
-            fields = parent.getDeclaredFields();
-            if(fields != null){
-                fieldList.addAll(Arrays.asList(fields));
-            }
-            parent = parent.getSuperclass();
+        Collection<Field> fieldList = allDBFieldMap.values();
+        if(fieldList == null || fieldList.isEmpty()){
+            return setMethodMap;
         }
         for(Field field : fieldList){
-            PropertyDescriptor pd = new PropertyDescriptor(field.getName(), cls);
+            PropertyDescriptor pd = new PropertyDescriptor(field.getName(), field.getDeclaringClass());
             Method setMethod = pd.getWriteMethod();
             if(setMethod != null){
                 setMethodMap.put(field.getName(), setMethod);
@@ -194,24 +170,14 @@ public class EntityClassInfoManager {
         return setMethodMap;
     }
 
-    public static Map<String, Method> getGetMethodMap(Class<?> cls) throws Exception {
-        Assert.notNull(cls, "class not be null!");
+    public static Map<String, Method> getGetMethodMap(Map<String, Field> allDBFieldMap) throws IntrospectionException {
         Map<String, Method> getMethodMap = new HashMap<>();
-        List<Field> fieldList = new ArrayList<>();
-        Field[] fields = cls.getDeclaredFields();
-        if(fields != null){
-            fieldList.addAll(Arrays.asList(fields));
-        }
-        Class<?> parent = cls.getSuperclass();
-        while(parent != null){
-            fields = parent.getDeclaredFields();
-            if(fields != null){
-                fieldList.addAll(Arrays.asList(fields));
-            }
-            parent = parent.getSuperclass();
+        Collection<Field> fieldList = allDBFieldMap.values();
+        if(fieldList == null || fieldList.isEmpty()){
+            return getMethodMap;
         }
         for(Field field : fieldList){
-            PropertyDescriptor pd = new PropertyDescriptor(field.getName(), cls);
+            PropertyDescriptor pd = new PropertyDescriptor(field.getName(), field.getDeclaringClass());
             Method setMethod = pd.getReadMethod();
             if(setMethod != null){
                 getMethodMap.put(field.getName(), setMethod);
@@ -220,7 +186,7 @@ public class EntityClassInfoManager {
         return getMethodMap;
     }
 
-    public static void setPara(PreparedStatement ps, Object value, int columnIndex) throws Exception{
+    public static void setPara(PreparedStatement ps, Object value, int columnIndex) throws SQLException {
         if(value != null){
             Class<?> valueType = value.getClass();
             if (valueType.equals(String.class)) {
@@ -258,7 +224,7 @@ public class EntityClassInfoManager {
         }
     }
 
-    public static void setNumberValue(Object obj, Field field, Method setMethod, Number number) throws Exception{
+    public static void setNumberValue(Object obj, Field field, Method setMethod, Number number) throws InvocationTargetException, IllegalAccessException {
         if(obj == null || field == null || setMethod == null || number == null){
             return;
         }
@@ -278,7 +244,7 @@ public class EntityClassInfoManager {
         }
     }
 
-    public static String getValue(Object bean, Method method) throws Exception {
+    public static String getValue(Object bean, Method method) throws InvocationTargetException, IllegalAccessException {
 
         String retValue = "";
 
@@ -317,77 +283,42 @@ public class EntityClassInfoManager {
     }
 
     /**
-     * 获取可插入的字段列表
-     * @param cls
+     * 获取主键列表
+     * @param idFieldMap
      * @return
-     * @throws Exception
      */
-    public static List<Field> getIndertableFieldList(Class<?> cls) throws Exception {
-        EntityClassInfo classInfo = getEntityClassInfo(cls);
-        Collection<Field> values = classInfo.getInsertableFieldMap().values();
-        Set<Integer> sort = new HashSet<Integer>();
+    public static List<Field> getIdFieldList(Map<String, Field> idFieldMap){
+        Collection<Field> values = idFieldMap.values();
         if(values == null || values.size() == 0){
             return null;
         }
-        //判断是否有重复的sort值
-        for(Field field : values){
-            if(!sort.add(field.getAnnotation(Column.class).sort())){
-                throw new Exception("One entity can not have more than one same sort value!");
-            }
-        }
-        //根据sort值正排序字段
-        List<Field> insertableFieldList = new ArrayList<Field>(values);
-        Collections.sort(insertableFieldList, new Comparator<Field>() {
-            @Override
-            public int compare(Field o1, Field o2) {
-                int sort1 = o1.getAnnotation(Column.class).sort();
-                int sort2 = o2.getAnnotation(Column.class).sort();
-                if(sort1 > sort2){
-                    return 1;
-                }else if(sort1 < sort2) {
-                    return -1;
-                }
-                return 0;
-            }
-        });
-        return insertableFieldList;
+        return new ArrayList<Field>(values);
     }
 
     /**
      * 获取可插入的字段列表
-     * @param cls
+     * @param insertableFieldMap
      * @return
-     * @throws Exception
      */
-    public static List<Field> getUpdateableFieldList(Class<?> cls) throws Exception {
-        EntityClassInfo classInfo = getEntityClassInfo(cls);
-        Collection<Field> values = classInfo.getUpdateableFieldMap().values();
-        Set<Integer> sort = new HashSet<Integer>();
+    public static List<Field> getIndertableFieldList(Map<String, Field> insertableFieldMap){
+        Collection<Field> values = insertableFieldMap.values();
         if(values == null || values.size() == 0){
             return null;
         }
-        //判断是否有重复的sort值
-        for(Field field : values){
-            if(!sort.add(field.getAnnotation(Column.class).sort())){
-                throw new Exception("One entity can not have more than one same sort value!");
-            }
+        return new ArrayList<Field>(values);
+    }
+
+    /**
+     * 获取可插入的字段列表
+     * @param updateableFieldMap
+     * @return
+     */
+    public static List<Field> getUpdateableFieldList(Map<String, Field> updateableFieldMap){
+        Collection<Field> values = updateableFieldMap.values();
+        if(values == null || values.size() == 0){
+            return null;
         }
-        //根据sort值正排序字段
-        List<Field> updateableFieldList = new ArrayList<Field>(values);
-        Collections.sort(updateableFieldList, new Comparator<Field>() {
-            @Override
-            public int compare(Field o1, Field o2) {
-                int sort1 = o1.getAnnotation(Column.class).sort();
-                int sort2 = o2.getAnnotation(Column.class).sort();
-                if(sort1 > sort2){
-                    return 1;
-                }else if(sort1 < sort2) {
-                    return -1;
-                }
-                return 0;
-            }
-        });
-        return updateableFieldList;
+        return new ArrayList<Field>(values);
     }
 
 }

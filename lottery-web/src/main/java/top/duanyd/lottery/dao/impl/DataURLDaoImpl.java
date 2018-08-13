@@ -1,7 +1,8 @@
 package top.duanyd.lottery.dao.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import org.slf4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import top.duanyd.lottery.common.MyJdbcTemplet;
 import top.duanyd.lottery.dao.interfaces.IDataURLDao;
 import top.duanyd.lottery.entity.DataURLEntity;
 
@@ -25,13 +27,13 @@ import java.util.Random;
  */
 @Component
 public class DataURLDaoImpl implements IDataURLDao {
-    private static Logger logger = LoggerFactory.getLogger(DataURLDaoImpl.class);
+    private static Log logger = LogFactory.getLog(DataURLDaoImpl.class);
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    MyJdbcTemplet myJdbcTemplet;
     @Override
     public List<DataURLEntity> getAllDataURL() {
         String sql = "select * from lottery_data_url";
-        List<DataURLEntity> list = jdbcTemplate.query(sql, new RowMapper<DataURLEntity>() {
+        List<DataURLEntity> list = myJdbcTemplet.query(sql, new RowMapper<DataURLEntity>() {
             @Override
             public DataURLEntity mapRow(ResultSet resultSet, int i) throws SQLException {
                 DataURLEntity dataURLEntity = new DataURLEntity();
@@ -79,7 +81,7 @@ public class DataURLDaoImpl implements IDataURLDao {
         final String sql = "insert into test1 (q, w, e)" +
                 "values(?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
+        myJdbcTemplet.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
                 PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);

@@ -12,12 +12,14 @@ import java.util.Map;
 public class EntityClassInfo {
 
     private String tableName;
+    private Map<String, Field> allDBFieldMap;
     private Map<String, Field> idFieldMap;
     private Field autoIncrementField;
     private Map<String, Field> insertableFieldMap;
     private Map<String, Field> updateableFieldMap;
     private Map<String, Method> setMethodMap;
     private Map<String, Method> getMethodMap;
+    private List<Field> idFieldList;
     private List<Field> insertableFieldList;
     private List<Field> updateableFieldList;
 
@@ -29,12 +31,12 @@ public class EntityClassInfo {
         this.tableName = tableName;
     }
 
-    public Field getAutoIncrementField() {
-        return autoIncrementField;
+    public Map<String, Field> getAllDBFieldMap() {
+        return allDBFieldMap;
     }
 
-    public void setAutoIncrementField(Field autoIncrementField) {
-        this.autoIncrementField = autoIncrementField;
+    public void setAllDBFieldMap(Map<String, Field> allDBFieldMap) {
+        this.allDBFieldMap = allDBFieldMap;
     }
 
     public Map<String, Field> getIdFieldMap() {
@@ -43,6 +45,14 @@ public class EntityClassInfo {
 
     public void setIdFieldMap(Map<String, Field> idFieldMap) {
         this.idFieldMap = idFieldMap;
+    }
+
+    public Field getAutoIncrementField() {
+        return autoIncrementField;
+    }
+
+    public void setAutoIncrementField(Field autoIncrementField) {
+        this.autoIncrementField = autoIncrementField;
     }
 
     public Map<String, Field> getInsertableFieldMap() {
@@ -75,6 +85,14 @@ public class EntityClassInfo {
 
     public void setGetMethodMap(Map<String, Method> getMethodMap) {
         this.getMethodMap = getMethodMap;
+    }
+
+    public List<Field> getIdFieldList() {
+        return idFieldList;
+    }
+
+    public void setIdFieldList(List<Field> idFieldList) {
+        this.idFieldList = idFieldList;
     }
 
     public List<Field> getInsertableFieldList() {

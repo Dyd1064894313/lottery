@@ -23,4 +23,9 @@ public class UserDaoImpl implements IUserDao {
     public void insert(UserEntity userEntity){
         myJdbcTemplet.insert(userEntity);
     }
+
+    @Override
+    public UserEntity queryById(UserEntity userEntity) {
+        return myJdbcTemplet.queryById(userEntity, UserEntity.class);
+    }
 }

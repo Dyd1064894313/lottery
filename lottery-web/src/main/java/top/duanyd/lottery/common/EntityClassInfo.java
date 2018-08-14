@@ -20,6 +20,7 @@ public class EntityClassInfo {
     private Map<String, Method> setMethodMap;
     private Map<String, Method> getMethodMap;
     private List<Field> idFieldList;
+    private List<Field> allDBFieldList;
     private List<Field> insertableFieldList;
     private List<Field> updateableFieldList;
 
@@ -93,6 +94,14 @@ public class EntityClassInfo {
 
     public void setIdFieldList(List<Field> idFieldList) {
         this.idFieldList = idFieldList;
+    }
+
+    public List<Field> getAllDBFieldList() {
+        return allDBFieldList;
+    }
+
+    public void setAllDBFieldList(List<Field> allDBFieldList) {
+        this.allDBFieldList = allDBFieldList;
     }
 
     public List<Field> getInsertableFieldList() {

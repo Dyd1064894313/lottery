@@ -9,11 +9,14 @@ import top.duanyd.lottery.exception.MyJdbcTempletAnnotationException;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.InputStream;
+import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -40,6 +43,7 @@ public class EntityClassInfoManager {
                 entityClassInfo.setSetMethodMap(getSetMethodMap(entityClassInfo.getAllDBFieldMap()));
                 entityClassInfo.setGetMethodMap(getGetMethodMap(entityClassInfo.getAllDBFieldMap()));
                 entityClassInfo.setIdFieldList(getIdFieldList(entityClassInfo.getIdFieldMap()));
+                entityClassInfo.setAllDBFieldList(getAllDBFieldList(entityClassInfo.getAllDBFieldMap()));
                 entityClassInfo.setInsertableFieldList(getIndertableFieldList(entityClassInfo.getInsertableFieldMap()));
                 entityClassInfo.setUpdateableFieldList(getUpdateableFieldList(entityClassInfo.getUpdateableFieldMap()));
                 classInfoMap.put(cls, entityClassInfo);
@@ -147,7 +151,8 @@ public class EntityClassInfoManager {
             return updateableFieldMap;
         }
         for(Field field : fieldList){
-            if(field.isAnnotationPresent(Column.class) && field.getAnnotation(Column.class).updateAble()){
+            if(field.isAnnotationPresent(Column.class) && field.getAnnotation(Column.class).updateAble()
+                    && field.isAnnotationPresent(Id.class)){
                 updateableFieldMap.put(field.getName(), field);
             }
         }
@@ -297,6 +302,19 @@ public class EntityClassInfoManager {
 
     /**
      * 获取可插入的字段列表
+     * @param allDBFieldMap
+     * @return
+     */
+    public static List<Field> getAllDBFieldList(Map<String, Field> allDBFieldMap){
+        Collection<Field> values = allDBFieldMap.values();
+        if(values == null || values.size() == 0){
+            return null;
+        }
+        return new ArrayList<Field>(values);
+    }
+
+    /**
+     * 获取可插入的字段列表
      * @param insertableFieldMap
      * @return
      */
@@ -321,4 +339,114 @@ public class EntityClassInfoManager {
         return new ArrayList<Field>(values);
     }
 
+    public static <T> T setValueToEntityFromResultSet(Class<T> cls, ResultSet resultSet, List<Field> fieldList, Map<String, Method> setMethodMap) throws SQLException {
+        try{
+            T entity = cls.newInstance();
+            for(Field f : fieldList) {
+                Object value = null;
+                Class<?> filedCls = f.getType();
+                String dbName = f.getAnnotation(Column.class).value().toUpperCase();
+                if(filedCls.equals(int.class) || filedCls.equals(Integer.class)) {
+                    value = resultSet.getInt(dbName);
+                } else if(filedCls.equals(String.class)) {
+                    value = resultSet.getString(dbName);
+                } else if(filedCls.equals(boolean.class) || filedCls.equals(Boolean.class)) {
+                    value = resultSet.getBoolean(dbName);
+                } else if(filedCls.equals(byte.class) || filedCls.equals(Byte.class)) {
+                    value = resultSet.getByte(dbName);
+                } else if(filedCls.equals(byte[].class) || filedCls.equals(Byte[].class)){
+                    value = resultSet.getBytes(dbName);
+                } else if(filedCls.equals(short.class) || filedCls.equals(Short.class)) {
+                    value = resultSet.getShort(dbName);
+                } else if(filedCls.equals(long.class) || filedCls.equals(Long.class)) {
+                    value = resultSet.getLong(dbName);
+                } else if(filedCls.equals(float.class) || filedCls.equals(Float.class)) {
+                    value = resultSet.getFloat(dbName);
+                } else if(filedCls.equals(double.class) || filedCls.equals(Double.class)) {
+                    value = resultSet.getDouble(dbName);
+                } else if(filedCls.equals(BigDecimal.class)) {
+                    value = resultSet.getBigDecimal(dbName);
+                } else if(filedCls.equals(java.sql.Date.class)){
+                    value = resultSet.getDate(dbName);
+                } else if(filedCls.equals(java.sql.Timestamp.class)){
+                    value = resultSet.getTimestamp(dbName);
+                } else if(filedCls.equals(java.util.Date.class)){
+                    java.sql.Timestamp t = resultSet.getTimestamp(dbName);
+                    if(t != null){
+                        value = new java.util.Date(t.getTime());
+                    }
+                } else if(filedCls.equals(java.sql.Time.class)){
+                    value = resultSet.getTime(dbName);
+                }else if(filedCls.equals(Reader.class)){
+                    value = resultSet.getCharacterStream(dbName);
+                }else if(filedCls.equals(InputStream.class)){
+                    value = resultSet.getBinaryStream(dbName);
+                } else {
+                    value = resultSet.getObject(dbName);
+                }
+
+                if (value != null) {
+                    Method setterMethod = setMethodMap.get(f.getName());
+                    setterMethod.invoke(entity, new Object[] { value });
+                }
+            }
+            return entity;
+        }catch (Exception e){
+            throw new SQLException(e);
+        }
+    }
+
+    public static String getInsertSql(String tableName, List<Field> fieldList){
+
+        StringBuffer head = new StringBuffer("INSERT INTO `").append(tableName.toUpperCase()).append("` (");
+        StringBuffer tail = new StringBuffer(" VALUES (");
+        Field field = fieldList.get(0);
+        head.append("`").append(field.getAnnotation(Column.class).value().toUpperCase()).append("`");
+        tail.append("?");
+        for(int i = 1; i < fieldList.size(); i++){
+            field = fieldList.get(i);
+            head.append(", `").append(field.getAnnotation(Column.class).value().toUpperCase()).append("`");
+            tail.append(", ?");
+        }
+        head.append(")");
+        tail.append(")");
+        return head.append(tail).toString();
+    }
+
+    public static String getDeleteSqlHead(String tableName){
+        StringBuffer sql = new StringBuffer("DELETE FROM `").append(tableName.toUpperCase()).append("` WHERE 1 = 1 ");
+        return sql.toString();
+    }
+
+    public static String getUpdateSqlHead(String tableName, List<Field> fieldList){
+        StringBuilder sql = new StringBuilder("UPDATE `").append(tableName.toUpperCase()).append("` SET ");
+        sql.append("`").append(fieldList.get(0).getAnnotation(Column.class).value().toUpperCase()).append("` = ? ");
+        for(int i = 1; i < fieldList.size(); i++){
+            sql.append(",`").append(fieldList.get(i).getAnnotation(Column.class).value().toUpperCase()).append("` = ? ");
+        }
+        sql.append("WHERE 1 = 1 ");
+        return sql.toString();
+    }
+
+    public static String getSelectSqlHead(String tableName, List<Field> fieldList){
+        StringBuilder sql = new StringBuilder("SELECT ");
+        sql.append(fieldList.get(0).getAnnotation(Column.class).value().toUpperCase());
+        for(int i = 1; i < fieldList.size(); i++){
+            sql.append(",").append(fieldList.get(i).getAnnotation(Column.class).value().toUpperCase());
+        }
+        sql.append(" FROM `").append(tableName).append("` WHERE 1 = 1 ");
+        return  sql.toString();
+    }
+
+    /**
+     * 获取 WHERE 之后的查询条件sql
+     * @param fieldList
+     * @return
+     */
+    public static String getWhereAfterSql(List<Field> fieldList){
+        StringBuffer sql = new StringBuffer();for(int i = 0; i < fieldList.size(); i++){
+            sql.append("AND `").append(fieldList.get(i).getAnnotation(Column.class).value().toLowerCase()).append("` = ? ");
+        }
+        return sql.toString();
+    }
 }

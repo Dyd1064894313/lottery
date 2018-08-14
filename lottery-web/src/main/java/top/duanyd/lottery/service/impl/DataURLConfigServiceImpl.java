@@ -1,5 +1,8 @@
 package top.duanyd.lottery.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.duanyd.lottery.dao.interfaces.IDataURLDao;
@@ -16,6 +19,7 @@ import java.util.List;
  */
 @Service
 public class DataURLConfigServiceImpl implements IDataURLConfigService {
+    private static Log logger = LogFactory.getLog(DataURLConfigServiceImpl.class);
     @Autowired
     IDataURLDao dataURLDao;
 
@@ -38,6 +42,8 @@ public class DataURLConfigServiceImpl implements IDataURLConfigService {
         userEntity.setCreateTime(now);
         userEntity.setUpdateTime(now);
         userDao.insert(userEntity);
+        UserEntity user = userDao.queryById(userEntity);
+        logger.info(JSONObject.toJSONString(user));
         return allDataURL;
     }
 }

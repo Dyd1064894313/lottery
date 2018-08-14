@@ -14,4 +14,11 @@ public interface IUserDao {
      * @param userEntity
      */
     public void insert(UserEntity userEntity);
+
+    /**
+     * 根据主键获取数据
+     * @param userEntity
+     * @return
+     */
+    public UserEntity queryById(UserEntity userEntity);
 }

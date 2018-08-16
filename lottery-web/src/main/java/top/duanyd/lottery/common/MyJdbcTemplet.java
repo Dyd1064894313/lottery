@@ -603,16 +603,32 @@ public class MyJdbcTemplet extends JdbcTemplate {
         return this.queryForObject(sql.toString(),Integer.TYPE);
     }
 
-    public<T> List<T> queryByCondition(String condition, Object[] args, Class<T> entityClass){
+    /**
+     * 根据条件查询数据
+     * @param condition
+     * @param args
+     * @param entityClass
+     * @param page
+     * @param size
+     * @param <T>
+     * @return
+     */
+    public<T> List<T> queryByCondition(String condition, Object[] args, Class<T> entityClass, int page, int size){
         Assert.notNull(entityClass, "Param entityClass cannot be null!");
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(entityClass);
         String tableName = entityClassInfo.getTableName();
         List<Field> allDBFieldList = entityClassInfo.getAllDBFieldList();
         Map<String, Method> setMethodMap = entityClassInfo.getSetMethodMap();
-        String sql = EntityClassInfoManager.getSelectSqlHead(tableName, allDBFieldList);
+        StringBuffer sqlbuff = new StringBuffer(EntityClassInfoManager.getSelectSqlHead(tableName, allDBFieldList));
         if(StringUtils.isNotBlank(condition)){
-            sql = sql + " AND " + condition;
+            sqlbuff.append(" AND ").append(condition);
         }
+        if(page > -1 && size > -2){
+            sqlbuff.append(" LIMIT ").append(page).append(",").append(size);
+        }else if(page < 0 && size > 0){
+            sqlbuff.append(" LIMIT ").append(size);
+        }
+        String sql = sqlbuff.toString();
         logger.info(sql);
         return this.query(sql, args, new RowMapper<T>() {
             @Override
@@ -623,12 +639,25 @@ public class MyJdbcTemplet extends JdbcTemplate {
     }
 
     /**
-     * 根据指定字段获取数据总数
+     * 根据条件查询数据
+     * @param condition
+     * @param args
+     * @param entityClass
+     * @param size
+     * @param <T>
+     * @return
+     */
+    public<T> List<T> queryByCondition(String condition, Object[] args, Class<T> entityClass, int size){
+        return this.queryByCondition(condition, args, entityClass, -1, size);
+    }
+
+    /**
+     * 根据指定字段获取数据
      * @param fields
      * @param entity
      * @return
      */
-    public<T> List<T> queryByFields(String[] fields, Object entity, Class<T> entityClass){
+    public<T> List<T> queryByFields(String[] fields, Object entity, Class<T> entityClass, int page, int size, String orderBy){
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(entityClass);
         String tableName = entityClassInfo.getTableName();
         Map<String, Method> getMethodMap = entityClassInfo.getGetMethodMap();
@@ -643,7 +672,16 @@ public class MyJdbcTemplet extends JdbcTemplate {
                 fieldList.add(f);
             }
         }
-        String sql = EntityClassInfoManager.getSelectSqlHead(tableName, fieldList) + EntityClassInfoManager.getWhereAfterSql(fieldList);
+        StringBuffer sqlbuff = new StringBuffer();
+        sqlbuff.append(EntityClassInfoManager.getSelectSqlHead(tableName, fieldList));
+        sqlbuff.append(EntityClassInfoManager.getWhereAfterSql(fieldList));
+        if(StringUtils.isNotBlank(orderBy)){
+            sqlbuff.append(" ORDER BY ").append(orderBy);
+        }
+        if(page > -1 && size > -1){
+            sqlbuff.append(" LIMIT ").append(page).append(",").append(size);
+        }
+        String sql = sqlbuff.toString();
         logger.info(sql.toString());
         Object[] args = getObjectValue(entity, fieldList, getMethodMap, false);
         return this.query(sql, args, new RowMapper<T>() {
@@ -655,18 +693,27 @@ public class MyJdbcTemplet extends JdbcTemplate {
     }
 
     /**
-     * 获取表全部数据总数
+     * 获取表全部数据
      * @param entityClass
      * @return
      */
-    public<T> List<T> queryAllData(Class<T> entityClass){
+    public<T> List<T> queryAllData(Class<T> entityClass, int page, int size, String orderBy){
         Assert.notNull(entityClass, "Param entityClass cannot be null!");
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(entityClass);
         String tableName = entityClassInfo.getTableName();
         Map<String, Method> setMethodMap = entityClassInfo.getSetMethodMap();
         List<Field> allDBFieldList = entityClassInfo.getAllDBFieldList();
-        String sql = EntityClassInfoManager.getSelectSqlHead(tableName, allDBFieldList);
-        logger.info(sql.toString());
+        StringBuffer sqlbuff = new StringBuffer(EntityClassInfoManager.getSelectSqlHead(tableName, allDBFieldList));
+        if(StringUtils.isNotBlank(orderBy)){
+            sqlbuff.append(" ORDER BY ").append(orderBy);
+        }
+        if(page > -1 && size > -2){
+            sqlbuff.append(" LIMIT ").append(page).append(",").append(size);
+        }else if(page < 0 && size > 0){
+            sqlbuff.append(" LIMIT ").append(size);
+        }
+        String sql = sqlbuff.toString();
+        logger.info(sql);
         return this.query(sql, new RowMapper<T>() {
             @Override
             public T mapRow(ResultSet resultSet, int i) throws SQLException {

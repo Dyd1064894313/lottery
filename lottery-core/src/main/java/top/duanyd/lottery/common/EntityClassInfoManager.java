@@ -20,7 +20,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2018/8/10.
@@ -202,8 +208,8 @@ public class EntityClassInfoManager {
                 ps.setLong(columnIndex, Long.parseLong(value.toString()));
             } else if(valueType.equals(short.class) || valueType.equals(Short.class)) {
                 ps.setShort(columnIndex, Short.parseShort(value.toString()));
-            } else if(valueType.equals(java.util.Date.class)) {
-                ps.setTimestamp(columnIndex, new java.sql.Timestamp(((java.util.Date)value).getTime()));
+            } else if(valueType.equals(Date.class)) {
+                ps.setTimestamp(columnIndex, new Timestamp(((Date)value).getTime()));
             } else if(valueType.equals(boolean.class) || valueType.equals(Boolean.class)) {
                 ps.setBoolean(columnIndex, Boolean.parseBoolean(value.toString()));
             } else if(valueType.equals(double.class) || valueType.equals(Double.class)) {
@@ -219,7 +225,7 @@ public class EntityClassInfoManager {
             } else if(valueType.equals(Timestamp.class)) {
                 ps.setTimestamp(columnIndex, (Timestamp)value);
             } else if(valueType.equals(java.sql.Date.class)) {
-                ps.setTimestamp(columnIndex, new java.sql.Timestamp(((java.sql.Date)value).getTime()));
+                ps.setTimestamp(columnIndex, new Timestamp(((java.sql.Date)value).getTime()));
             } else{
                 ps.setObject(columnIndex, value);
             }
@@ -261,9 +267,9 @@ public class EntityClassInfoManager {
             } else {
                 retValue = "'" + valueObj.toString() + "'";
             }
-        } else if(valueType.equals(java.sql.Timestamp.class)
+        } else if(valueType.equals(Timestamp.class)
                 || valueType.equals(java.sql.Date.class)
-                || valueType.equals(java.util.Date.class)){
+                || valueType.equals(Date.class)){
             if (valueObj == null) {
                 retValue = "''";
             } else {
@@ -368,12 +374,12 @@ public class EntityClassInfoManager {
                     value = resultSet.getBigDecimal(dbName);
                 } else if(filedCls.equals(java.sql.Date.class)){
                     value = resultSet.getDate(dbName);
-                } else if(filedCls.equals(java.sql.Timestamp.class)){
+                } else if(filedCls.equals(Timestamp.class)){
                     value = resultSet.getTimestamp(dbName);
-                } else if(filedCls.equals(java.util.Date.class)){
-                    java.sql.Timestamp t = resultSet.getTimestamp(dbName);
+                } else if(filedCls.equals(Date.class)){
+                    Timestamp t = resultSet.getTimestamp(dbName);
                     if(t != null){
-                        value = new java.util.Date(t.getTime());
+                        value = new Date(t.getTime());
                     }
                 } else if(filedCls.equals(java.sql.Time.class)){
                     value = resultSet.getTime(dbName);

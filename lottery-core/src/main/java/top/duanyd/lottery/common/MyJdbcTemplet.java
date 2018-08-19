@@ -9,21 +9,19 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.util.Assert;
 import top.duanyd.lottery.annotation.Column;
-import top.duanyd.lottery.annotation.Id;
-import top.duanyd.lottery.annotation.Table;
 import top.duanyd.lottery.exception.MyJdbcTempletAnnotationException;
 
 import javax.sql.DataSource;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2018/8/8.
@@ -97,7 +95,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
      * @param entityList
      * @throws MyJdbcTempletAnnotationException
      */
-    public void insertBatch(List<Object> entityList)throws MyJdbcTempletAnnotationException{
+    public void batchInsert(List<?> entityList)throws MyJdbcTempletAnnotationException{
         Assert.notEmpty(entityList, "Param list cannot be empty!");
         final Class<?> c = entityList.get(0).getClass();
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(c);
@@ -151,7 +149,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
      * @param entityList
      * @throws MyJdbcTempletAnnotationException
      */
-    public void batchDeleteById(List<Object> entityList)throws MyJdbcTempletAnnotationException{
+    public void batchDeleteById(List<?> entityList)throws MyJdbcTempletAnnotationException{
         Assert.notEmpty(entityList, "Param entityList cannot be empty!");
         final Class<?> c = entityList.get(0).getClass();
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(c);
@@ -215,7 +213,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
      * @param entityList
      * @throws MyJdbcTempletAnnotationException
      */
-    public void batchDeleteByFields(String[] fields, List<Object> entityList)throws MyJdbcTempletAnnotationException{
+    public void batchDeleteByFields(String[] fields, List<?> entityList)throws MyJdbcTempletAnnotationException{
         Assert.notEmpty(fields, "Param fields cannot be empty!");
         Assert.notEmpty(entityList, "Param entityList cannot be empty!");
         final Class<?> c = entityList.get(0).getClass();
@@ -299,7 +297,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
      * @param entityList
      * @throws MyJdbcTempletAnnotationException
      */
-    public void batchUpdateById(List<Object> entityList)throws MyJdbcTempletAnnotationException{
+    public void batchUpdateById(List<?> entityList)throws MyJdbcTempletAnnotationException{
         Assert.notEmpty(entityList, "Param entityList cannot be empty!");
         final Class<?> c = entityList.get(0).getClass();
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(c);
@@ -407,7 +405,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
      * @param entityList
      * @throws MyJdbcTempletAnnotationException
      */
-    public void batchUpdateFieldsById(String[] fields, List<Object> entityList)throws MyJdbcTempletAnnotationException{
+    public void batchUpdateFieldsById(String[] fields, List<?> entityList)throws MyJdbcTempletAnnotationException{
         Assert.notEmpty(fields, "Param fields cannot be empty!");
         Assert.notEmpty(entityList, "Param entityList cannot be empty!");
         final Class<?> c = entityList.get(0).getClass();

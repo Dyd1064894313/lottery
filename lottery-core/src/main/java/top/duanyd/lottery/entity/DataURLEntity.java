@@ -1,5 +1,7 @@
 package top.duanyd.lottery.entity;
 
+import top.duanyd.lottery.annotation.Column;
+import top.duanyd.lottery.annotation.Id;
 import top.duanyd.lottery.annotation.Table;
 
 import java.sql.Date;
@@ -11,15 +13,23 @@ import java.sql.Timestamp;
 @Table("lottery_data_url")
 public class DataURLEntity {
 
+    @Id
+    @Column("id")
     Long id;
+    @Column("lottery_code")
     String lotteryCode;
+    @Column("url")
     String url;
+    @Column("param")
     String param;
-    Integer status;
-    Date createTime;
-    Date updateTime;
-    String remark;
-    Long id2;
+    @Column("status")
+    private Byte status;
+    @Column("create_time")
+    private Timestamp createTime;
+    @Column("update_time")
+    private Timestamp updateTime;
+    @Column("remark")
+    private String remark;
 
     public Long getId() {
         return id;
@@ -53,23 +63,27 @@ public class DataURLEntity {
         this.param = param;
     }
 
-    public int getStatus() {
+    public Byte getStatus() {
         return status;
     }
 
-    public Date getCreateTime() {
+    public void setStatus(Byte status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
     }
 
-    public Date getUpdateTime() {
+    public Timestamp getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Date updateTime) {
+    public void setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
     }
 
@@ -79,17 +93,5 @@ public class DataURLEntity {
 
     public void setRemark(String remark) {
         this.remark = remark;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getId2() {
-        return id2;
-    }
-
-    public void setId2(Long id2) {
-        this.id2 = id2;
     }
 }

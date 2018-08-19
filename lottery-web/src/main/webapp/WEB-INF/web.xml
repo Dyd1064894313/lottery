@@ -6,7 +6,7 @@
 <display-name>lottery</display-name>
 <context-param>
   <param-name>contextConfigLocation</param-name>
-  <param-value>classpath:ApplicationContext.xml</param-value>
+  <param-value>classpath:applicationContext.xml</param-value>
 </context-param>
 <!-- 编码过滤器 -->
 <filter>

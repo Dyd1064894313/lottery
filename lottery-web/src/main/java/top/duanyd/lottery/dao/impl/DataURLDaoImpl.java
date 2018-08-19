@@ -41,9 +41,9 @@ public class DataURLDaoImpl implements IDataURLDao {
                 dataURLEntity.setLotteryCode(resultSet.getString("lottery_code"));
                 dataURLEntity.setUrl(resultSet.getString("url"));
                 dataURLEntity.setParam(resultSet.getString("param"));
-                dataURLEntity.setStatus(resultSet.getInt("status"));
-                dataURLEntity.setCreateTime(resultSet.getDate("create_time"));
-                dataURLEntity.setUpdateTime(resultSet.getDate("update_time"));
+                dataURLEntity.setStatus(resultSet.getByte("status"));
+                dataURLEntity.setCreateTime(resultSet.getTimestamp("create_time"));
+                dataURLEntity.setUpdateTime(resultSet.getTimestamp("update_time"));
                 dataURLEntity.setRemark(resultSet.getString("remark"));
 //                dataURLEntity.setId2(resultSet.getLong("id2"));
                 return dataURLEntity;

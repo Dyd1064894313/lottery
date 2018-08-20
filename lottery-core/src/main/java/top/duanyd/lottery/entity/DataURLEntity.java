@@ -23,7 +23,7 @@ public class DataURLEntity {
     @Column("param")
     String param;
     @Column("status")
-    private Byte status;
+    private Integer status;
     @Column("create_time")
     private Timestamp createTime;
     @Column("update_time")
@@ -63,11 +63,11 @@ public class DataURLEntity {
         this.param = param;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

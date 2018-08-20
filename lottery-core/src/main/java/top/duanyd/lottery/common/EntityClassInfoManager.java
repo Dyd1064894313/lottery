@@ -143,7 +143,7 @@ public class EntityClassInfoManager {
             return insertableFieldMap;
         }
         for(Field field : fieldList){
-            if(field.isAnnotationPresent(Column.class) && field.getAnnotation(Column.class).insertAlle()){
+            if(field.isAnnotationPresent(Column.class) && field.getAnnotation(Column.class).insertAble()){
                 insertableFieldMap.put(field.getName(), field);
             }
         }

@@ -2,6 +2,7 @@ package top.duanyd.lottery.entity;
 
 import top.duanyd.lottery.annotation.Column;
 import top.duanyd.lottery.annotation.Id;
+import top.duanyd.lottery.annotation.Table;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -11,6 +12,7 @@ import java.sql.Timestamp;
  * @Date: 2018/8/19 11:31
  * @Description:
  */
+@Table("lottery_ssq")
 public class SsqEntity {
 
     @Id
@@ -69,13 +71,269 @@ public class SsqEntity {
     @Column("prize_eight_num")
     private Long prizeEightNum;
     @Column("prize_eight_every_money")
-    private Long eightEveryMoney;
+    private Long prizeEightEveryMoney;
     @Column("status")
-    private Byte status;
+    private Integer status;
     @Column("create_time")
     private Timestamp createTime;
     @Column("update_time")
     private Timestamp updateTime;
     @Column("remark")
     private String remark;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLotteryNo() {
+        return lotteryNo;
+    }
+
+    public void setLotteryNo(String lotteryNo) {
+        this.lotteryNo = lotteryNo;
+    }
+
+    public Date getLotteryDate() {
+        return lotteryDate;
+    }
+
+    public void setLotteryDate(Date lotteryDate) {
+        this.lotteryDate = lotteryDate;
+    }
+
+    public String getRedOne() {
+        return redOne;
+    }
+
+    public void setRedOne(String redOne) {
+        this.redOne = redOne;
+    }
+
+    public String getRedTwo() {
+        return redTwo;
+    }
+
+    public void setRedTwo(String redTwo) {
+        this.redTwo = redTwo;
+    }
+
+    public String getRedThree() {
+        return redThree;
+    }
+
+    public void setRedThree(String redThree) {
+        this.redThree = redThree;
+    }
+
+    public String getRedFour() {
+        return redFour;
+    }
+
+    public void setRedFour(String redFour) {
+        this.redFour = redFour;
+    }
+
+    public String getRedFive() {
+        return redFive;
+    }
+
+    public void setRedFive(String redFive) {
+        this.redFive = redFive;
+    }
+
+    public String getRedSix() {
+        return redSix;
+    }
+
+    public void setRedSix(String redSix) {
+        this.redSix = redSix;
+    }
+
+    public String getBlueOne() {
+        return blueOne;
+    }
+
+    public void setBlueOne(String blueOne) {
+        this.blueOne = blueOne;
+    }
+
+    public String getLotterySaleAmount() {
+        return lotterySaleAmount;
+    }
+
+    public void setLotterySaleAmount(String lotterySaleAmount) {
+        this.lotterySaleAmount = lotterySaleAmount;
+    }
+
+    public String getLotteryPoolAmount() {
+        return lotteryPoolAmount;
+    }
+
+    public void setLotteryPoolAmount(String lotteryPoolAmount) {
+        this.lotteryPoolAmount = lotteryPoolAmount;
+    }
+
+    public Long getPrizeOneNum() {
+        return prizeOneNum;
+    }
+
+    public void setPrizeOneNum(Long prizeOneNum) {
+        this.prizeOneNum = prizeOneNum;
+    }
+
+    public Long getPrizeOneEveryMoney() {
+        return prizeOneEveryMoney;
+    }
+
+    public void setPrizeOneEveryMoney(Long prizeOneEveryMoney) {
+        this.prizeOneEveryMoney = prizeOneEveryMoney;
+    }
+
+    public Long getPrizeTwoNum() {
+        return prizeTwoNum;
+    }
+
+    public void setPrizeTwoNum(Long prizeTwoNum) {
+        this.prizeTwoNum = prizeTwoNum;
+    }
+
+    public Long getPrizeTwoEveryMoney() {
+        return prizeTwoEveryMoney;
+    }
+
+    public void setPrizeTwoEveryMoney(Long prizeTwoEveryMoney) {
+        this.prizeTwoEveryMoney = prizeTwoEveryMoney;
+    }
+
+    public Long getPrizeThreeNum() {
+        return prizeThreeNum;
+    }
+
+    public void setPrizeThreeNum(Long prizeThreeNum) {
+        this.prizeThreeNum = prizeThreeNum;
+    }
+
+    public Long getPrizeThreeEveryMoney() {
+        return prizeThreeEveryMoney;
+    }
+
+    public void setPrizeThreeEveryMoney(Long prizeThreeEveryMoney) {
+        this.prizeThreeEveryMoney = prizeThreeEveryMoney;
+    }
+
+    public Long getPrizeFourNum() {
+        return prizeFourNum;
+    }
+
+    public void setPrizeFourNum(Long prizeFourNum) {
+        this.prizeFourNum = prizeFourNum;
+    }
+
+    public Long getPrizeFourEveryMoney() {
+        return prizeFourEveryMoney;
+    }
+
+    public void setPrizeFourEveryMoney(Long prizeFourEveryMoney) {
+        this.prizeFourEveryMoney = prizeFourEveryMoney;
+    }
+
+    public Long getPrizeFiveNum() {
+        return prizeFiveNum;
+    }
+
+    public void setPrizeFiveNum(Long prizeFiveNum) {
+        this.prizeFiveNum = prizeFiveNum;
+    }
+
+    public Long getPrizeFiveEveryMoney() {
+        return prizeFiveEveryMoney;
+    }
+
+    public void setPrizeFiveEveryMoney(Long prizeFiveEveryMoney) {
+        this.prizeFiveEveryMoney = prizeFiveEveryMoney;
+    }
+
+    public Long getPrizeSixNum() {
+        return prizeSixNum;
+    }
+
+    public void setPrizeSixNum(Long prizeSixNum) {
+        this.prizeSixNum = prizeSixNum;
+    }
+
+    public Long getPrizeSixEveryMoney() {
+        return prizeSixEveryMoney;
+    }
+
+    public void setPrizeSixEveryMoney(Long prizeSixEveryMoney) {
+        this.prizeSixEveryMoney = prizeSixEveryMoney;
+    }
+
+    public Long getPrizeSevenNum() {
+        return prizeSevenNum;
+    }
+
+    public void setPrizeSevenNum(Long prizeSevenNum) {
+        this.prizeSevenNum = prizeSevenNum;
+    }
+
+    public Long getPrizeSevenEveryMoney() {
+        return prizeSevenEveryMoney;
+    }
+
+    public void setPrizeSevenEveryMoney(Long prizeSevenEveryMoney) {
+        this.prizeSevenEveryMoney = prizeSevenEveryMoney;
+    }
+
+    public Long getPrizeEightNum() {
+        return prizeEightNum;
+    }
+
+    public void setPrizeEightNum(Long prizeEightNum) {
+        this.prizeEightNum = prizeEightNum;
+    }
+
+    public Long getPrizeEightEveryMoney() {
+        return prizeEightEveryMoney;
+    }
+
+    public void setPrizeEightEveryMoney(Long prizeEightEveryMoney) {
+        this.prizeEightEveryMoney = prizeEightEveryMoney;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+    }
+
+    public Timestamp getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Timestamp updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
 }

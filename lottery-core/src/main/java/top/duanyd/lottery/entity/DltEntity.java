@@ -2,15 +2,18 @@ package top.duanyd.lottery.entity;
 
 import top.duanyd.lottery.annotation.Column;
 import top.duanyd.lottery.annotation.Id;
+import top.duanyd.lottery.annotation.Table;
 
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Date;
+
 
 /**
  * @Author: duanyandong
  * @Date: 2018/8/19 10:22
  * @Description:
  */
+@Table("lottery_dlt")
 public class DltEntity {
     @Id
     @Column("id")
@@ -90,19 +93,19 @@ public class DltEntity {
     @Column("prize_seven_every_money")
     private Long prizeSevenEveryMoney;
     @Column("prize_seven_additional_num")
-    private Long prizeSevenAdditinalNum;
+    private Long prizeSevenAdditionalNum;
     @Column("prize_seven_additional_every_money")
     private Long prizeSevenAdditionalEveryMoney;
     @Column("prize_eight_num")
     private Long prizeEightNum;
     @Column("prize_eight_every_money")
-    private Long eightEveryMoney;
+    private Long prizeEightEveryMoney;
     @Column("prize_eight_additional_num")
     private Long prizeEightAdditionalNum;
     @Column("prize_eight_additional_every_money")
     private Long prizeEightAdditionalEveryMoney;
     @Column("status")
-    private Byte status;
+    private Integer status;
     @Column("create_time")
     private Timestamp createTime;
     @Column("update_time")
@@ -414,12 +417,12 @@ public class DltEntity {
         this.prizeSevenEveryMoney = prizeSevenEveryMoney;
     }
 
-    public Long getPrizeSevenAdditinalNum() {
-        return prizeSevenAdditinalNum;
+    public Long getPrizeSevenAdditionalNum() {
+        return prizeSevenAdditionalNum;
     }
 
-    public void setPrizeSevenAdditinalNum(Long prizeSevenAdditinalNum) {
-        this.prizeSevenAdditinalNum = prizeSevenAdditinalNum;
+    public void setPrizeSevenAdditionalNum(Long prizeSevenAdditionalNum) {
+        this.prizeSevenAdditionalNum = prizeSevenAdditionalNum;
     }
 
     public Long getPrizeSevenAdditionalEveryMoney() {
@@ -438,12 +441,12 @@ public class DltEntity {
         this.prizeEightNum = prizeEightNum;
     }
 
-    public Long getEightEveryMoney() {
-        return eightEveryMoney;
+    public Long getPrizeEightEveryMoney() {
+        return prizeEightEveryMoney;
     }
 
-    public void setEightEveryMoney(Long eightEveryMoney) {
-        this.eightEveryMoney = eightEveryMoney;
+    public void setPrizeEightEveryMoney(Long prizeEightEveryMoney) {
+        this.prizeEightEveryMoney = prizeEightEveryMoney;
     }
 
     public Long getPrizeEightAdditionalNum() {
@@ -462,11 +465,11 @@ public class DltEntity {
         this.prizeEightAdditionalEveryMoney = prizeEightAdditionalEveryMoney;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

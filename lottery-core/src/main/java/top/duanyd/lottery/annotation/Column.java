@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 public @interface Column {
     String value();
     boolean updateAble() default true;
-    boolean insertAlle() default true;
+    boolean insertAble() default true;
 //    int sort();
 
 }

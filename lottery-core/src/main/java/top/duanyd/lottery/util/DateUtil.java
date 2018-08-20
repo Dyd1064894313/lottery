@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,6 +69,14 @@ public class DateUtil {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.SECOND, - second);
         return c.getTime();
+    }
+
+    /**
+     * 获取当前时间
+     * @return
+     */
+    public static Timestamp getCurrTimestamp(){
+        return new Timestamp(System.currentTimeMillis());
     }
     /**
      * 获取现在时间

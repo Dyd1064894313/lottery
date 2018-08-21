@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import top.duanyd.lottery.entity.DataURLEntity;
@@ -27,16 +30,16 @@ import java.util.List;
  * @Description:
  */
 @Component
-public class DltSchedule {
+public class DltSchedule implements Job {
     private static Log logger = LogFactory.getLog(DltSchedule.class);
     private static String DLT_CODE = "dlt";
-    private int DLT_BEGIN_YEAR = 2018;  // 大乐透开始年
+    private int DLT_BEGIN_YEAR = 2007;  // 大乐透开始年
     @Autowired
     IDataURLService dataURLService;
     @Autowired
     IDltService dltService;
 
-    public void getAllLastData() throws IOException {
+    public void getAllData() throws IOException {
         List<DataURLEntity> allDataURL = dataURLService.getAllDataURL();
         DataURLEntity dltDataURLEntity = null;
         for(DataURLEntity dataURLEntity : allDataURL){
@@ -50,13 +53,13 @@ public class DltSchedule {
         }
         String dltUrl = dltDataURLEntity.getUrl();
         Calendar cal = Calendar.getInstance();
-//        int nowYear = cal.get(Calendar.YEAR);
-        int nowYear = 2018;
+        int nowYear = cal.get(Calendar.YEAR);
         int startYear = DLT_BEGIN_YEAR;
-        List<DltEntity> dltEntityList = new ArrayList<>();
+        List<DltEntity> dltEntityList = null;
         while(startYear <= nowYear){
             int num = 1;
-            int falseTimes = 0; // 失败次数
+            int falseTimes = 0; // 失败次数,如果失败次数达到3次表示本年已结束
+            dltEntityList = new ArrayList<>();
             while(true){
                 String numStr = String.format("%d%03d", startYear, num);
                 num++;
@@ -74,13 +77,20 @@ public class DltSchedule {
                 dltEntityList.add(dltEntity);
                 logger.info(JSONObject.toJSONString(dltEntity));
                 logger.info("期号：" + numStr + "，结果：" + content);
+            }
+            if(!dltEntityList.isEmpty()) {//数据1年保存一次
                 dltService.batchInsert(dltEntityList);
-                return;
             }
             startYear++;
         }
+
     }
 
+    /**
+     * 重原内容中获取所需字符串
+     * @param raw
+     * @return
+     */
     public String getContent(String raw){
         if(StringUtils.isBlank(raw)){
             return null;
@@ -93,9 +103,26 @@ public class DltSchedule {
         return raw.substring(begin + 1, end);
     }
 
+    /**
+     * 将字符串转为实体类
+     * @param content
+     * @return
+     */
     public DltEntity transToEntity(String content){
-        content = content.replace("*", "/");
-        String[] element = content.split("/");
+        //如果字符串后面全部都是分隔符字符，则在分割时会把后面全部是分隔符的子串去掉，如1*2***，按*分隔只能得到["1","2"]，
+        // 如果在字符串后面多加一个非分隔符就能全部分隔
+        if("*".equals(content.substring(content.length() - 1))){
+            content = content + " ";
+        }
+        String[] element = content.split("\\*");
+        if(element.length < 32){//如果分割后数组元素少于32个，则new一个32位新数组，将原数组复制到新数组中，防止下面报下标越界
+            String temp[] = new String[32];
+            for (int i = 0; i < temp.length; i++) {
+                temp[i] = "";
+            }
+            System.arraycopy(element, 0 ,temp, 0 , element.length);
+            element = temp;
+        }
         DltEntity dltEntity = new DltEntity();
         dltEntity.setLotteryNo(element[0]);
         dltEntity.setLotteryDate(DateUtil.getDate(DateUtil.YYYY_MM_DD, element[1]));
@@ -230,5 +257,10 @@ public class DltSchedule {
         dltEntity.setStatus(1);
         dltEntity.setRemark(content);
         return dltEntity;
+    }
+
+    @Override
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+
     }
 }

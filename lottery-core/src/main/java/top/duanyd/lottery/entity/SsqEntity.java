@@ -4,8 +4,8 @@ import top.duanyd.lottery.annotation.Column;
 import top.duanyd.lottery.annotation.Id;
 import top.duanyd.lottery.annotation.Table;
 
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @Author: duanyandong

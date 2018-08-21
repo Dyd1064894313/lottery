@@ -15,6 +15,6 @@ public class App
     public static void main( String[] args ) throws IOException {
         ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
         DltSchedule dltSchedule = (DltSchedule) ac.getBean("dltSchedule");
-        dltSchedule.getAllLastData();
+        dltSchedule.getAllData();
     }
 }

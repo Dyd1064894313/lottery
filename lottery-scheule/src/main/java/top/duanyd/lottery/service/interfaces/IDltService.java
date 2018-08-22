@@ -17,5 +17,9 @@ public interface IDltService {
      */
     void batchInsert(List<DltEntity> entityList);
 
+    /**
+     * 获取大乐透表中最后一条数据
+     * @return
+     */
     DltEntity getLastDltEntity();
 }

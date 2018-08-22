@@ -17,5 +17,12 @@ public interface IDltDao {
      */
     void batchInsert(List<DltEntity> entityList);
 
+    /**
+     * 获取全部大乐透数据
+     * @param page
+     * @param size
+     * @param orderBy
+     * @return
+     */
     List<DltEntity> getAllDltEntity(int page, int size, String orderBy);
 }

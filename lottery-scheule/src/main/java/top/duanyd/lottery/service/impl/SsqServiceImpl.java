@@ -22,4 +22,13 @@ public class SsqServiceImpl implements ISsqService {
     public void batchInsert(List<SsqEntity> entityList) {
         ssqDao.batchInsert(entityList);
     }
+
+    @Override
+    public SsqEntity getLastSsqEntity() {
+        List<SsqEntity> allSsqEntity = ssqDao.getAllSsqEntity(0, 1, "id desc");
+        if(allSsqEntity != null && !allSsqEntity.isEmpty()){
+            return allSsqEntity.get(0);
+        }
+        return null;
+    }
 }

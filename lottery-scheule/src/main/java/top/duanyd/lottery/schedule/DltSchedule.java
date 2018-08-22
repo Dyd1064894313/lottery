@@ -63,7 +63,7 @@ public class DltSchedule implements Job {
             String number = lastDltEntity.getLotteryNo();
             if(StringUtils.isNotBlank(number) && number.length() == 7){
                 startYear = Integer.parseInt(number.substring(0, 4));
-                beginNum = Integer.parseInt(number.substring(4));
+                beginNum = Integer.parseInt(number.substring(4)) + 1;
                 newBegin = false;
             }
         }
@@ -278,6 +278,10 @@ public class DltSchedule implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-
+        try {
+            getAllData();
+        } catch (IOException e) {
+            logger.error("定时任务获取大乐透数据异常", e);
+        }
     }
 }

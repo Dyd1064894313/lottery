@@ -64,14 +64,6 @@ public class SsqEntity {
     private Long prizeSixNum;
     @Column("prize_six_every_money")
     private Long prizeSixEveryMoney;
-    @Column("prize_seven_num")
-    private Long prizeSevenNum;
-    @Column("prize_seven_every_money")
-    private Long prizeSevenEveryMoney;
-    @Column("prize_eight_num")
-    private Long prizeEightNum;
-    @Column("prize_eight_every_money")
-    private Long prizeEightEveryMoney;
     @Column("status")
     private Integer status;
     @Column("create_time")
@@ -271,38 +263,6 @@ public class SsqEntity {
 
     public void setPrizeSixEveryMoney(Long prizeSixEveryMoney) {
         this.prizeSixEveryMoney = prizeSixEveryMoney;
-    }
-
-    public Long getPrizeSevenNum() {
-        return prizeSevenNum;
-    }
-
-    public void setPrizeSevenNum(Long prizeSevenNum) {
-        this.prizeSevenNum = prizeSevenNum;
-    }
-
-    public Long getPrizeSevenEveryMoney() {
-        return prizeSevenEveryMoney;
-    }
-
-    public void setPrizeSevenEveryMoney(Long prizeSevenEveryMoney) {
-        this.prizeSevenEveryMoney = prizeSevenEveryMoney;
-    }
-
-    public Long getPrizeEightNum() {
-        return prizeEightNum;
-    }
-
-    public void setPrizeEightNum(Long prizeEightNum) {
-        this.prizeEightNum = prizeEightNum;
-    }
-
-    public Long getPrizeEightEveryMoney() {
-        return prizeEightEveryMoney;
-    }
-
-    public void setPrizeEightEveryMoney(Long prizeEightEveryMoney) {
-        this.prizeEightEveryMoney = prizeEightEveryMoney;
     }
 
     public Integer getStatus() {

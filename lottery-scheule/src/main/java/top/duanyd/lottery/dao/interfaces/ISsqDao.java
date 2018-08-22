@@ -16,4 +16,13 @@ public interface ISsqDao {
      * @param entityList
      */
     void batchInsert(List<SsqEntity> entityList);
+
+    /**
+     * 获取全部双色球数据
+     * @param page
+     * @param size
+     * @param orderBy
+     * @return
+     */
+    public List<SsqEntity> getAllSsqEntity(int page, int size, String orderBy);
 }

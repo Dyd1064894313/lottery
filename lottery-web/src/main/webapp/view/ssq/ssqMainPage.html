@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../resources/assets/layui/css/layui.css" media="all"/>
+    <title></title>
+</head>
+<body class="layui-layout-body">
+<div id="nva-bar">
+    <ul class="layui-nav">
+        <li class="layui-nav-item"><a href="index">首页</a></li>
+        <li class="layui-nav-item layui-this"><a href="ssq/index">双色球</a></li>
+        <li class="layui-nav-item"><a href="dlt/index">大乐透</a></li>
+    </ul>
+</div>
+
+
+<script src="../resources/assets/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use('element', function(){
+        var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+
+        //监听导航点击
+        element.on('nav(demo)', function(elem){
+            //console.log(elem)
+            layer.msg(elem.text());
+        });
+    });
+    console.info(document.currentScript.src);
+</script>
+
+</body>
+</html>

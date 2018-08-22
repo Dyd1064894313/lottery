@@ -97,7 +97,7 @@
     <!-- 定义跳转的文件的前后缀 ，视图模式配置-->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <!-- 请求跳转url地址，路径自定义，也可以直接访问前端html -->
-        <property name="prefix" value="/WEB-INF/view/" />
+        <property name="prefix" value="/view/" />
         <property name="suffix" value=".html" />  <!-- 可配置 html,主要用于H5页面请求 -->
     </bean>
 

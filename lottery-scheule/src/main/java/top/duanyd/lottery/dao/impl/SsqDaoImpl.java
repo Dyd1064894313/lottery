@@ -22,4 +22,9 @@ public class SsqDaoImpl implements ISsqDao {
     public void batchInsert(List<SsqEntity> entityList){
         myJdbcTemplet.batchInsert(entityList);
     }
+
+    @Override
+    public List<SsqEntity> getAllSsqEntity(int page, int size, String orderBy) {
+        return myJdbcTemplet.queryAllData(SsqEntity.class, page, size, orderBy);
+    }
 }

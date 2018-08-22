@@ -16,4 +16,10 @@ public interface ISsqService {
      * @param entityList
      */
     public void batchInsert(List<SsqEntity> entityList);
+
+    /**
+     * 获取双色球表中最后一条数据
+     * @return
+     */
+    public SsqEntity getLastSsqEntity();
 }

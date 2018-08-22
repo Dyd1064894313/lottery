@@ -16,4 +16,6 @@ public interface IDltDao {
      * @param entityList
      */
     void batchInsert(List<DltEntity> entityList);
+
+    List<DltEntity> getAllDltEntity(int page, int size, String orderBy);
 }

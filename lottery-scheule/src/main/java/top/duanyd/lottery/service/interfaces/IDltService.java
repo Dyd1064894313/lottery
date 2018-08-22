@@ -16,4 +16,6 @@ public interface IDltService {
      * @param entityList
      */
     void batchInsert(List<DltEntity> entityList);
+
+    DltEntity getLastDltEntity();
 }

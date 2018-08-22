@@ -23,4 +23,9 @@ public class DltDaoImpl implements IDltDao {
     public void batchInsert(List<DltEntity> entityList) {
         myJdbcTemplet.batchInsert(entityList);
     }
+
+    @Override
+    public List<DltEntity> getAllDltEntity(int page, int size, String orderBy) {
+        return myJdbcTemplet.queryAllData(DltEntity.class, page, size, orderBy);
+    }
 }

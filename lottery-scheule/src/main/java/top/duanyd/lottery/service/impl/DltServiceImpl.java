@@ -24,4 +24,13 @@ public class DltServiceImpl implements IDltService {
     public void batchInsert(List<DltEntity> entityList) {
         dltDao.batchInsert(entityList);
     }
+
+    @Override
+    public DltEntity getLastDltEntity() {
+        List<DltEntity> dltEntityList = dltDao.getAllDltEntity(0, 1, "id desc");
+        if(dltEntityList != null && !dltEntityList.isEmpty()){
+            return dltEntityList.get(0);
+        }
+        return null;
+    }
 }

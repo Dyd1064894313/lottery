@@ -52,12 +52,29 @@ public class DltSchedule implements Job {
             return;
         }
         String dltUrl = dltDataURLEntity.getUrl();
+
         Calendar cal = Calendar.getInstance();
         int nowYear = cal.get(Calendar.YEAR);
         int startYear = DLT_BEGIN_YEAR;
+        boolean newBegin = true;
+        int beginNum = 1;
+        DltEntity lastDltEntity = dltService.getLastDltEntity();
+        if(lastDltEntity != null){
+            String number = lastDltEntity.getLotteryNo();
+            if(StringUtils.isNotBlank(number) && number.length() == 7){
+                startYear = Integer.parseInt(number.substring(0, 4));
+                beginNum = Integer.parseInt(number.substring(4));
+                newBegin = false;
+            }
+        }
+
         List<DltEntity> dltEntityList = null;
         while(startYear <= nowYear){
             int num = 1;
+            if(!newBegin) {
+                num = beginNum;
+                newBegin = true;
+            }
             int falseTimes = 0; // 失败次数,如果失败次数达到3次表示本年已结束
             dltEntityList = new ArrayList<>();
             while(true){

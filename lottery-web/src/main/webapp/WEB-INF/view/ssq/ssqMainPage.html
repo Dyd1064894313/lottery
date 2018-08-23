@@ -1,22 +1,22 @@
 <!DOCTYPE html>
+<#assign ctx=request.contextPath />
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="resources/assets/layui/css/layui.css" media="all"/>
+    <link rel="stylesheet" href="${ctx}/resources/assets/layui/css/layui.css" media="all"/>
     <title></title>
 </head>
 <body class="layui-layout-body">
-<div >
+<div id="nva-bar">
     <ul class="layui-nav">
-        <li class="layui-nav-item layui-this"><a href="index">首页</a></li>
-        <li class="layui-nav-item"><a href="ssq/index">双色球</a></li>
-        <li class="layui-nav-item"><a href="dlt/index">大乐透</a></li>
+        <li class="layui-nav-item"><a href="${ctx}/index">首页</a></li>
+        <li class="layui-nav-item layui-this"><a href="${ctx}/ssq/index">双色球</a></li>
+        <li class="layui-nav-item"><a href="${ctx}/dlt/index">大乐透</a></li>
     </ul>
 </div>
-<a href="login" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop">登录</a>
 
 
-<script src="resources/assets/layui/layui.js" charset="utf-8"></script>
+<script src="${ctx}/resources/assets/layui/layui.js" charset="utf-8"></script>
 <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
 <script>
     layui.use('element', function(){

@@ -95,10 +95,36 @@
     <mvc:resources location="/resources/" mapping="/resources/**"/>
 
     <!-- 定义跳转的文件的前后缀 ，视图模式配置-->
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <!-- 请求跳转url地址，路径自定义，也可以直接访问前端html -->
+    <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        &lt;!&ndash; 请求跳转url地址，路径自定义，也可以直接访问前端html &ndash;&gt;
         <property name="prefix" value="/view/" />
-        <property name="suffix" value=".html" />  <!-- 可配置 html,主要用于H5页面请求 -->
+        <property name="suffix" value=".html" />  &lt;!&ndash; 可配置 html,主要用于H5页面请求 &ndash;&gt;
+    </bean>-->
+
+    <!-- freemarker的配置 -->
+    <bean id="freemarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/WEB-INF/view/" />
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="template_update_delay">10</prop>
+                <prop key="locale">zh_CN</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                <prop key="date_format">yyyy-MM-dd</prop>
+                <prop key="number_format">#.##</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- FreeMarker视图解析 在这里配置后缀名ftl和视图解析器。。 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+        <property name="suffix" value=".html" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+        <!--添加这个这个属性，页面才能使用 <#assign ctx=request.contextPath />-->
+        <property name="requestContextAttribute" value="request" />
+        <property name="exposeRequestAttributes" value="true" />
+        <property name="exposeSessionAttributes" value="true" />
+        <property name="exposeSpringMacroHelpers" value="true" />
     </bean>
 
     <!-- 配置文件上传,如果不使用可不配置，而且POM可以不加入文件上传包 -->

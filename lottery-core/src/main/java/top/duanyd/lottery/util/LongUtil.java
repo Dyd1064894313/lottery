@@ -5,11 +5,21 @@ package top.duanyd.lottery.util;
  */
 public class LongUtil {
 
-    public static Long parseLong(String s){
+    public static Long parseLong(String s, Long defaule){
         if(s == null){
-            return null;
+            return defaule;
         }
-        s = s.replace(",", "");
-        return Long.parseLong(s);
+        Long num = null;
+        try {
+            s = s.replace(",", "");
+            num = Long.parseLong(s);
+        }catch (Exception e){
+            num = defaule;
+        }
+        return num;
+    }
+
+    public static Long parseLong(String s){
+        return parseLong(s, 0L);
     }
 }

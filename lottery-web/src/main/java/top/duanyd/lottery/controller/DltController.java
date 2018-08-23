@@ -8,12 +8,12 @@ import org.springframework.web.servlet.ModelAndView;
  * Created by Administrator on 2018/8/22.
  */
 @Controller()
-@RequestMapping("/ssq")
-public class SsqController {
+@RequestMapping("/dlt")
+public class DltController {
 
     @RequestMapping("/index")
     public ModelAndView toSsqMainPage(String menuCode){
-        ModelAndView mv = new ModelAndView("ssq/ssqMainPage");
+        ModelAndView mv = new ModelAndView("dlt/dltMainPage");
         mv.addObject("menuCode", menuCode);
         return mv;
     }

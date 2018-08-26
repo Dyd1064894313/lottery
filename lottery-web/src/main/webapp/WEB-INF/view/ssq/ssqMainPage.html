@@ -7,9 +7,9 @@
     <title>双色球</title>
 </head>
 <body class="layui-layout-body">
-<div id="header"></div>
+<div id="header"><#include "../model/header.html"/></div>
 <div id="content"></div>
-<div id="footer"></div>
+<div id="footer"><#include "../model/footer.html"/></div>
 </div>
 
 
@@ -19,14 +19,11 @@
     layui.use(['element','jquery'], function(){
         var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
         var $ = layui.jquery;
-        $("#header").load("${ctx}/header?menuCode=${menuCode!}", function(response,status,xhr){
-            //监听导航点击
-            element.on('nav(demo)', function(elem){
-                //console.log(elem)
-                layer.msg(elem.text());
-            });
+        //监听导航点击
+        element.on('nav(demo)', function(elem){
+            //console.log(elem)
+            layer.msg(elem.text());
         });
-        $("#footer").load("${ctx}/footer");
 
     });
     console.info(document.currentScript.src);

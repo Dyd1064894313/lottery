@@ -26,6 +26,7 @@ public class DateUtil {
     public static final String YYYYMMDD = "yyyyMMdd";
     public static final String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
     private static final String[] WEEK_TEXT = new String[]{"日", "一", "二", "三", "四", "五", "六"};
+    public static final String[] weekOfDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
     public static final long DAY_MILLIS = 86400000L;
     /**
      * 格式化字符串-日期天开始时刻
@@ -169,7 +170,6 @@ public class DateUtil {
      * @return
      */
     public static String getWeekOfDate(Date date) {
-        String[] weekOfDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
         Calendar calendar = Calendar.getInstance();
         if(date != null){
             calendar.setTime(date);

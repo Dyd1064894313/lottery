@@ -1,25 +1,6 @@
-<!DOCTYPE html>
 <#assign ctx=request.contextPath />
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>header</title>
-</head>
-<body>
-<div>
-
-</div>
-<div>
     <ul class="layui-nav">
         <#list menuList as menu>
-
-            <li class="layui-nav-item <#if menu.selected == true>layui-this</#if>"><a href="${ctx}${menu.url}?menuCode=${menu.code}">${menu.name}</a></li>
-
+            <li class="layui-nav-item <#if menu.selected == true>layui-this</#if>"><a href="${ctx}${menu.url}">${menu.name}</a></li>
         </#list>
-        <!--<li class="layui-nav-item layui-this"><a href="${ctx}/index">首页</a></li>-->
-        <!--<li class="layui-nav-item"><a href="${ctx}/ssq/index">双色球</a></li>-->
-        <!--<li class="layui-nav-item"><a href="${ctx}/dlt/index">大乐透</a></li>-->
     </ul>
-</div>
-</body>
-</html>

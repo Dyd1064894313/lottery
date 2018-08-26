@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import top.duanyd.lottery.entity.MenuEntity;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class FrameController {
     }
 
     @RequestMapping("/header")
-    public ModelAndView getHeader(String menuCode){
+    public ModelAndView getHeader(String menuCode, HttpServletRequest request){
         ModelAndView mv = new ModelAndView("model/header");
         List<MenuEntity> menuList = new ArrayList<>();
         MenuEntity indexMenu = new MenuEntity();

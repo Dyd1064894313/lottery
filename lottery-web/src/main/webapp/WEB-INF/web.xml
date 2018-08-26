@@ -29,7 +29,14 @@
 <listener>
   <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
 </listener>
-
+  <filter>
+    <filter-name>frameFilter</filter-name>
+    <filter-class>top.duanyd.lottery.filter.FrameFilter</filter-class>
+  </filter>
+<filter-mapping>
+  <filter-name>frameFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
 <!-- Spring MVC servlet -->
 <servlet>
   <servlet-name>SpringMVC</servlet-name>

@@ -6,31 +6,152 @@
     <link rel="stylesheet" href="${ctx}/resources/assets/layui/css/layui.css" media="all"/>
     <title>大乐透</title>
 </head>
-<body class="layui-layout-body">
-<div id="header"></div>
-<div id="content"></div>
-<div id="footer"></div>
+<body class="">
+<div id="header"><#include "../model/header.html"/></div>
+
+<div id="content"style="padding: 10px">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>按星期统计</legend>
+    </fieldset>
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+            <span>所有数据</span>
+            <table class="layui-table" lay-data="{url:'${ctx}/dlt/getWeekData', id:'allData',size: 'sm'}" lay-filter="allData">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'num', width:60, templet:'#oneNumTpl'}" rowspan="2">号码</th>
+                    <th lay-data="{align:'center'}" colspan="2">星期一</th>
+                    <th lay-data="{align:'center'}" colspan="2">星期三</th>
+                    <th lay-data="{align:'center'}" colspan="2">星期六</th>
+                    <th lay-data="{align:'center'}" colspan="2">总计</th>
+                </tr>
+                <tr>
+                    <th lay-data="{field:'mondayCount', width:60}">数量</th>
+                    <th lay-data="{field:'mondayPercent'}">占比</th>
+                    <th lay-data="{field:'wednesdayCount', width:60}" >数量</th>
+                    <th lay-data="{field:'wednesdayPercent'}" >占比</th>
+                    <th lay-data="{field:'saturdayCount', width:60}">数量</th>
+                    <th lay-data="{field:'saturdayPercent'}">占比</th>
+                    <th lay-data="{field:'totleCount', width:60}">数量</th>
+                    <th lay-data="{field:'totlePercent'}">占比</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+            <span>近 <input id="numbers" value="100" type="number" style="width:50px" onblur="reloadTable('myData','numbers')"/> 期</span>
+            <table class="layui-table" lay-data="{url:'${ctx}/dlt/getWeekData', id:'myData', where:{numbers:100},size: 'sm'}" lay-filter="myData">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'num', width:60, templet:'#oneNumTpl'}" rowspan="2">号码</th>
+                    <th lay-data="{align:'center'}" colspan="2">星期一</th>
+                    <th lay-data="{align:'center'}" colspan="2">星期三</th>
+                    <th lay-data="{align:'center'}" colspan="2">星期六</th>
+                    <th lay-data="{align:'center'}" colspan="2">总计</th>
+                </tr>
+                <tr>
+                    <th lay-data="{field:'mondayCount', width:60}">数量</th>
+                    <th lay-data="{field:'mondayPercent'}">占比</th>
+                    <th lay-data="{field:'wednesdayCount', width:60}" >数量</th>
+                    <th lay-data="{field:'wednesdayPercent'}" >占比</th>
+                    <th lay-data="{field:'saturdayCount', width:60}">数量</th>
+                    <th lay-data="{field:'saturdayPercent'}">占比</th>
+                    <th lay-data="{field:'totleCount', width:60}">数量</th>
+                    <th lay-data="{field:'totlePercent'}">占比</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>详细列表</legend>
+    </fieldset>
+    <table class="layui-hide" id="dltListTable"></table>
+</div>
+<div id="footer"><#include "../model/footer.html"/></div>
 </div>
 
 
 <script src="${ctx}/resources/assets/layui/layui.js" charset="utf-8"></script>
 <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
 <script>
-    layui.use(['element','jquery'], function(){
+    var table;
+    var $;
+    function fmtDate(obj){
+        var date =  new Date(obj);
+        var y = 1900+date.getYear();
+        var m = "0"+(date.getMonth()+1);
+        var d = "0"+date.getDate();
+        return y+"-"+m.substring(m.length-2,m.length)+"-"+d.substring(d.length-2,d.length);
+    }
+    layui.use(['element','jquery','table'], function(){
         var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
-        var $ = layui.jquery;
-        $("#header").load("${ctx}/header?menuCode=${menuCode!}", function(response,status,xhr){
-            //监听导航点击
-            element.on('nav(demo)', function(elem){
-                //console.log(elem)
-                layer.msg(elem.text());
-            });
+        $ = layui.jquery;
+        table = layui.table;
+        //监听导航点击
+        element.on('nav(demo)', function(elem){
+            //console.log(elem)
+            layer.msg(elem.text());
         });
-        $("#footer").load("${ctx}/footer");
+
+        table.render({
+            elem: '#dltListTable'
+            ,url:'${ctx}/dlt/getAllData'
+            ,cols: [[
+                {field:'lotteryNo', width:80, title: '期号', rowspan: 2, align:'center'}
+                ,{field:'lotteryDate', width:100, title: '日期', rowspan: 2, align:'center', templet:function (d) {
+                    return fmtDate(d.lotteryDate);
+                }}
+                ,{field:'result', width:200, title: '开奖结果', rowspan: 2, align:'center', templet:function (d) {
+                    var rtn = "";
+                    rtn += "<span style='color: red'>" + d.redOne + "</span>";
+                    rtn += "<span style='color: red;padding-left: 10px'>" + d.redTwo + "</span>";
+                    rtn += "<span style='color: red;padding-left: 10px'>" + d.redThree + "</span>";
+                    rtn += "<span style='color: red;padding-left: 10px'>" + d.redFour + "</span>";
+                    rtn += "<span style='color: red;padding-left: 10px'>" + d.redFive + "</span>";
+                    rtn += "<span style='color: blue;padding-left: 10px'>" + d.blueOne + "</span>";
+                    rtn += "<span style='color: blue;padding-left: 10px'>" + d.blueTwo + "</span>";
+                    return rtn;
+                }}
+                ,{field:'onePrize', title: '一等奖', width: 360, colspan: 4, align:'center'}
+                ,{field:'twoPrize', width:360, title: '二等奖', colspan: 4, align:'center'}
+                ,{field:'threePrize', width:360, title: '三等奖', colspan: 4, align:'center'}
+                ,{width:80, title: '详情', rowspan: 2, align:'center'}
+            ],
+            [
+                {field: 'prizeOneNum', title: '基本注数', width: 80}
+                ,{field: 'prizeOneEveryMoney', title: '每注奖金', width: 100}
+                ,{field: 'prizeOneAdditionalNum', title: '追加注数', width: 80}
+                ,{field: 'prizeOneAdditionalEveryMoney', title: '每注奖金', width: 100},
+                {field: 'prizeTwoNum', title: '基本注数', width: 80}
+                ,{field: 'prizeTwoEveryMoney', title: '每注奖金', width: 100}
+                ,{field: 'prizeTwoAdditionalNum', title: '追加注数', width: 80}
+                ,{field: 'prizeTwoAdditionalEveryMoney', title: '每注奖金', width: 100},
+                {field: 'prizeThreeNum', title: '基本注数', width: 80}
+                ,{field: 'prizeThreeEveryMoney', title: '每注奖金', width: 100}
+                ,{field: 'prizeThreeAdditionalNum', title: '追加注数', width: 80}
+                ,{field: 'prizeThreeAdditionalEveryMoney', title: '每注奖金', width: 100}
+            ]]
+            ,page: true
+            ,even: true //开启隔行背景
+            ,size: 'sm' //小尺寸的表格
+        });
 
     });
-    console.info(document.currentScript.src);
+    function reloadTable(tableId, numberId) {
+        var numbs = $("#" + numberId).val();
+        table.reload(tableId, {
+            url:'${ctx}/dlt/getWeekData',
+            where:{numbers:numbs}
+        });
+    }
 </script>
-
+<script type="text/html" id="oneNumTpl">
+    {{#  if(d.color == 'red'){ }}
+    <span style="color: red">{{d.num}}</span>
+    {{#  } else { }}
+    <span style="color: blue">{{d.num}}</span>
+    {{#  } }}
+</script>
 </body>
 </html>

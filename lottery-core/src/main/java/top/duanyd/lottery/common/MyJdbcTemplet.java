@@ -567,7 +567,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
         Class<?> entityClass = entity.getClass();
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(entityClass);
         String tableName = entityClassInfo.getTableName();
-        StringBuffer sql = new StringBuffer("SELECT (1) FROM `");
+        StringBuffer sql = new StringBuffer("SELECT COUNT(1) FROM `");
         sql.append(tableName).append("` WHERE 1 = 1 ");
         Map<String, Method> getMethodMap = entityClassInfo.getGetMethodMap();
         Map<String, Field> allDBFieldMap = entityClassInfo.getAllDBFieldMap();
@@ -595,7 +595,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
         Assert.notNull(entityClass, "Param entityClass cannot be null!");
         EntityClassInfo entityClassInfo = EntityClassInfoManager.getEntityClassInfo(entityClass);
         String tableName = entityClassInfo.getTableName();
-        StringBuffer sql = new StringBuffer("SELECT (1) FROM `");
+        StringBuffer sql = new StringBuffer("SELECT COUNT(1) FROM `");
         sql.append(tableName).append("` WHERE 1 = 1 ");
         logger.info(sql.toString());
         return this.queryForObject(sql.toString(),Integer.TYPE);
@@ -622,7 +622,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
             sqlbuff.append(" AND ").append(condition);
         }
         if(page > -1 && size > -2){
-            sqlbuff.append(" LIMIT ").append(page).append(",").append(size);
+            sqlbuff.append(" LIMIT ").append(page * size).append(",").append(size);
         }else if(page < 0 && size > 0){
             sqlbuff.append(" LIMIT ").append(size);
         }
@@ -677,7 +677,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
             sqlbuff.append(" ORDER BY ").append(orderBy);
         }
         if(page > -1 && size > -1){
-            sqlbuff.append(" LIMIT ").append(page).append(",").append(size);
+            sqlbuff.append(" LIMIT ").append(page * size).append(",").append(size);
         }
         String sql = sqlbuff.toString();
         logger.info(sql.toString());
@@ -706,7 +706,7 @@ public class MyJdbcTemplet extends JdbcTemplate {
             sqlbuff.append(" ORDER BY ").append(orderBy);
         }
         if(page > -1 && size > -2){
-            sqlbuff.append(" LIMIT ").append(page).append(",").append(size);
+            sqlbuff.append(" LIMIT ").append(page * size).append(",").append(size);
         }else if(page < 0 && size > 0){
             sqlbuff.append(" LIMIT ").append(size);
         }

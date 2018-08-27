@@ -31,7 +31,7 @@
 </listener>
   <filter>
     <filter-name>frameFilter</filter-name>
-    <filter-class>top.duanyd.lottery.filter.FrameFilter</filter-class>
+    <filter-class>top.duanyd.lottery.web.filter.FrameFilter</filter-class>
   </filter>
 <filter-mapping>
   <filter-name>frameFilter</filter-name>

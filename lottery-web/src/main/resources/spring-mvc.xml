@@ -14,7 +14,7 @@
 
     <mvc:annotation-driven/>
     <!-- 自动扫描包，使SpringMVC @controller注解 -->
-    <context:component-scan base-package="top.duanyd.lottery.controller" />
+    <context:component-scan base-package="top.duanyd.lottery.web.controller" />
     <mvc:default-servlet-handler/>
 
     <!-- 启动SpringMVC的注解功能，完成请求和注解PO的映射 -->
